@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Proofcast local state
+.cache/
+site/
+.env
+*.local.toml
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
