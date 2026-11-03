@@ -7,7 +7,7 @@
 > Proofcast is not a trading bot. It never executes trades, never calls an asset "safe" and
 > never promises returns. It publishes probabilities, not recommendations.
 
-**Status: early development (0.1.0).** It works end to end, but there is no meaningful track
+**Live site: https://7suheel.github.io/Proofcast/** · **Status: early development (0.1.0).** It works end to end, but there is no meaningful track
 record yet, so nothing here demonstrates forecasting skill.
 
 ## What it does
