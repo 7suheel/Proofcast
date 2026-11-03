@@ -211,6 +211,23 @@ def why_cmd(
     typer.echo(why_text(*result))
 
 
+@app.command()
+def doctor(
+    model: str | None = typer.Option(None, "--model", help="Check this model spec instead."),
+    live: bool = typer.Option(False, "--live", help="Also make one tiny LLM call."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Check data sources and AI setup. Never prints keys."""
+    from proofcast.doctor import run_doctor
+
+    cfg = _load(config)
+    rows, ok = run_doctor(cfg, config_path=config, model=model, live=live)
+    for status, check, detail in rows:
+        typer.echo(f"[{status:>4}] {check}: {detail}")
+    if not ok:
+        raise typer.Exit(1)
+
+
 def _provider(no_ai: bool, model: str | None) -> tuple[Provider | None, TokenBudget | None]:
     """Resolve the BYOK provider from flags and environment; None means AI is off."""
     from proofcast.llm.factory import ProviderConfigError, provider_from_env

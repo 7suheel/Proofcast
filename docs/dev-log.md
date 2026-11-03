@@ -132,3 +132,30 @@ prices|news|filings|macro|all`.
 - A minimal LLM core (Provider protocol, FakeProvider, token budget, JSON validation) landed
   here because the History agent needs it; real providers come in Phase 4.
 - CLI: `proofcast history <asset>`, `proofcast why <asset> <date> [--no-ai]`.
+
+## 2026-11-03 — Phase 4: BYOK LLM layer
+
+- Providers: Anthropic Messages adapter and an OpenAI-compatible adapter (OpenAI, OpenRouter,
+  Ollama, any `compat` base URL), written on httpx with no SDK or gateway library.
+- `PROOFCAST_MODEL=<provider>:<model>` (everything after the first colon is the model id, so
+  `ollama:qwen2.5-coder:7b` works); `--model` overrides it; nothing set means AI off. Each
+  provider reads only its own key variable. Keys are never sent over plain http to a
+  non-localhost host, and are redacted from every error message.
+- Anthropic specifics (checked against the bundled Claude API reference on 2026-11-03):
+  `anthropic-version: 2026-10-21`. That API version rejects `temperature`/`top_p`/`top_k` on
+  every model with a 400, so the Anthropic adapter does **not** send temperature 0. The
+  OpenAI-compatible adapter still does. Current Claude models think before answering: only
+  `text` blocks are read, and `max_tokens` has a floor of 8000 because thinking counts toward
+  it. `stop_reason` `refusal` and `max_tokens` are errors, so callers use their safe fallback.
+  For claude-fable-5-1, claude-opus-5-5, claude-opus-5 and claude-sonnet-5-5 the adapter
+  sends `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`), which re-runs a
+  declined request on Anthropic's recommended fallback model.
+- Suggested Anthropic model in docs: `claude-opus-5-5`.
+- Token budget per run (`PROOFCAST_MAX_TOKENS`) is checked before each call (rough prompt
+  estimate + max output). Timeout `PROOFCAST_LLM_TIMEOUT`, default 120 s remote, 300 s
+  Anthropic, 600 s localhost.
+- JSON replies are validated against Pydantic models, with one repair attempt, then the caller's
+  fallback.
+- `proofcast doctor [--model X] [--live]` reports configuration and key presence, never values.
+- Not verified live: no API keys were available in this session, so every adapter is tested
+  only with `httpx.MockTransport`.

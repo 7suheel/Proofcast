@@ -77,6 +77,8 @@ def complete_json[T: BaseModel](
 ) -> JsonResult[T]:
     """Call ``provider`` and return a validated ``schema`` instance, or ``value=None``."""
     budget = budget or TokenBudget()
+    # Providers whose models think before answering need room for it.
+    max_tokens = max(max_tokens, int(getattr(provider, "min_output_tokens", 0)))
     result: JsonResult[T] = JsonResult(value=None)
     conversation = prompt
     for attempt in range(2):
