@@ -159,3 +159,31 @@ prices|news|filings|macro|all`.
 - `proofcast doctor [--model X] [--live]` reports configuration and key presence, never values.
 - Not verified live: no API keys were available in this session, so every adapter is tested
   only with `httpx.MockTransport`.
+
+## 2026-11-03 — Phase 5: analyst agents and forecasts
+
+- Question per asset and horizon (7 and 30 days): does the close of the first bar on or after
+  `reference_date + horizon` beat the reference close? The reference bar is the last bar that
+  was complete before the forecast time.
+- Base rate: smoothed share of past windows that ended higher, counting only outcomes known
+  before T (last 10 years). Momentum baseline: `base + 0.10 * tanh(r / sigma)`. Both, plus
+  always-50%, are stored on every forecast so later scoring compares like with like.
+- Context (`agents/context.py`) is built from `pit.get_data` and re-checked with
+  `assert_no_lookahead`. News and filings are wrapped as `<untrusted_source>`; numbers our code
+  computed are `<data>`. Ids: N#, F#, K#, M#, T:<indicator>, B:<horizon>, H#.
+- Panel: News, Filings, Technical, Macro and History analysts, then Bull, Bear and Skeptic, then
+  the Forecaster; 9 prompt files plus shared `panel_rules.md` in `src/proofcast/prompts/`. An
+  analyst with no items of its kind is skipped instead of being asked to guess.
+- Code-enforced guards: citations not in the context are dropped and lower confidence;
+  probabilities are shrunk toward the base rate when fewer than 3 distinct sources are validly
+  cited or when the panel's spread exceeds 0.15; then clamped to [0.05, 0.95]. An invalid
+  forecaster reply falls back to the panel average, and an exhausted token budget falls back to
+  the base rate.
+- `--no-ai`: the momentum baseline, setup `baseline:momentum`, labelled "BASELINE (no AI)".
+- Ledger (needed here because `forecast --all` writes to it): append-only JSONL with a sha256
+  hash chain over canonical JSON; appends refuse to run on a broken chain. Only live forecasts
+  are recorded (as_of within 1 hour of now). One forecast per asset, horizon, setup and
+  reference bar, so re-runs add nothing. `analyze --as-of <past>` prints a backtest warning
+  about LLM memorisation and never writes.
+- CLI: `proofcast analyze <asset>`, `proofcast forecast --all|-a X [--no-ai] [--dry-run]`.
+- Live check: `analyze BTC --no-ai` on real Coinbase data works.

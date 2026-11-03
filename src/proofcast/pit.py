@@ -18,8 +18,17 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from proofcast.models import Filing, MacroObservation, NewsItem, PriceBar, SourceRef
+from proofcast.models import (
+    Filing,
+    FinancialFact,
+    MacroObservation,
+    NewsItem,
+    PriceBar,
+    SourceRef,
+)
 from proofcast.storage import DataStore
+
+PublicItem = PriceBar | NewsItem | Filing | MacroObservation | SourceRef | FinancialFact
 
 
 class LookaheadError(RuntimeError):
@@ -94,7 +103,7 @@ def get_data(
     return snapshot
 
 
-def item_time(item: PriceBar | NewsItem | Filing | MacroObservation | SourceRef) -> datetime:
+def item_time(item: PublicItem) -> datetime:
     """The time an item became public."""
     if isinstance(item, PriceBar):
         return item.available_at
@@ -104,7 +113,7 @@ def item_time(item: PriceBar | NewsItem | Filing | MacroObservation | SourceRef)
 
 
 def assert_no_lookahead(
-    items: Iterable[PriceBar | NewsItem | Filing | MacroObservation | SourceRef],
+    items: Iterable[PublicItem],
     as_of: datetime,
 ) -> None:
     """Raise :class:`LookaheadError` if any item was not public strictly before ``as_of``."""

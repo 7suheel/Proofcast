@@ -281,6 +281,9 @@ class Forecast(_Model):
     horizon_days: int = Field(gt=0)
     probability: Probability
     base_rate: Probability
+    baselines: dict[str, Probability] = Field(default_factory=dict)
+    """Baseline probabilities for the same question at the same time (``always_50``,
+    ``base_rate``, ``momentum``), so the track record compares like with like."""
     resolution_rule: ResolutionRule
     setup: str
     """Which forecasting setup produced this, e.g. ``ai:anthropic:<model>`` or
