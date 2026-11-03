@@ -22,3 +22,6 @@ site/
 Thumbs.db
 .idea/
 .vscode/
+
+# Local agent/editor settings
+.claude/
