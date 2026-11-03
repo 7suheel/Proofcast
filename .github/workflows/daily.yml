@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
+          persist-credentials: false
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           python-version: "3.12"
@@ -42,6 +43,8 @@ jobs:
           uv run --no-dev proofcast fetch macro || status=1
           if [ "$status" -ne 0 ]; then echo "::warning::some fetches failed; see the log"; fi
       - name: Commit data
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: 'scripts/commit-data.sh "data: daily prices, filings and macro"'
 
       - name: Verify ledger
@@ -49,6 +52,8 @@ jobs:
       - name: Resolve finished forecasts
         run: uv run --no-dev proofcast resolve
       - name: Commit resolutions
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: 'scripts/commit-data.sh "ledger: resolve finished forecasts"'
 
       - name: Baseline forecasts (no AI)
@@ -65,6 +70,8 @@ jobs:
           PROOFCAST_COMPAT_BASE_URL: ${{ vars.PROOFCAST_COMPAT_BASE_URL }}
         run: uv run --no-dev proofcast forecast --all
       - name: Commit forecasts
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: 'scripts/commit-data.sh "ledger: daily forecasts"'
 
       - name: Score
@@ -72,6 +79,8 @@ jobs:
       - name: Verify ledger again
         run: uv run --no-dev proofcast ledger verify
       - name: Commit track record
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: 'scripts/commit-data.sh "data: track record"'
 
   pages:

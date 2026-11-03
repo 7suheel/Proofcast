@@ -242,3 +242,24 @@ prices|news|filings|macro|all`.
 - Validation: `actionlint` (1.7.12 via `uvx --from actionlint-py`) found unquoted `run:`
   values containing `": "`; fixed, now clean. A test also asserts every action is SHA-pinned and
   no `${{ github.event... }}` is interpolated.
+
+## 2026-11-03 — Phase 8: hardening
+
+- Adversarial tests (`tests/test_adversarial.py`): prompt injection with a "gullible" fake
+  model, fake JSON in news, wrapper-escape attempts (case, spacing, zero-width, full-width
+  brackets), XML entity bomb, oversized and garbage feeds, non-string GDELT fields, eight
+  pathological regex inputs (100 KB), advice wording in model output, and a streaming response
+  cap.
+- Lookahead tests: a news item or bar at exactly T injected into the snapshot makes
+  `make_forecasts` raise `LookaheadError` (with and without AI); stored future news never reaches
+  any prompt.
+- Secrets: provider errors that echo the key are redacted before they reach the ledger; CLI
+  output, the built site and all committed files are scanned for key patterns.
+- Tools: `pip-audit` reports no known vulnerabilities; `zizmor` found two medium `artipacked`
+  findings (fixed); `actionlint` is clean.
+- Fixed with tests: unverified ledger reads (Phase 6), persisted push credentials, parser crash
+  on non-string fields, advice wording from models, the commit script failing before `ledger/`
+  exists, the over-broad `site/` ignore rule, a post-download size check, and narrow
+  JSON-lookalike detection. Details in SECURITY_REVIEW.md; threats in THREAT_MODEL.md.
+- Lesson: Python edit scripts passed through shell heredocs turned `\b` into backspace
+  characters; the repository was scanned for control characters afterwards (none left).

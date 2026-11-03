@@ -30,7 +30,7 @@ from proofcast.llm.base import BudgetExceededError, Provider, TokenBudget
 from proofcast.llm.jsonout import complete_json
 from proofcast.models import AgentOpinion, Probability
 from proofcast.prompts import load_prompt
-from proofcast.security import UNTRUSTED_RULES
+from proofcast.security import UNTRUSTED_RULES, neutralize_advice
 
 MIN_VALID_SOURCES = 3
 MAX_DISAGREEMENT = 0.15
@@ -213,6 +213,9 @@ class Panel:
         valid, dropped = filter_citations(reply.citations, ctx.ids())
         if dropped:
             out_notes.append(f"{name}: dropped citations not in context: {dropped[:10]}")
+        summary, changed = neutralize_advice(reply.summary.strip())
+        if changed:
+            out_notes.append(f"{name}: removed investment-advice wording from the summary")
         probs: dict[int, float] = {}
         for key, p in reply.probabilities.items():
             try:
@@ -228,7 +231,7 @@ class Panel:
                 confidence=adjusted_confidence(
                     reply.confidence, len(reply.citations), len(dropped), len(valid)
                 ),
-                summary=reply.summary.strip(),
+                summary=summary,
                 citations=valid,
                 dropped_citations=dropped[:20],
                 weight=self.weights.get(name, 1.0),
@@ -331,7 +334,9 @@ class Panel:
                     notes.append(
                         f"forecaster {h}d: dropped citations not in context: {dropped[:10]}"
                     )
-                reasoning = f.reasoning.strip()
+                reasoning, changed = neutralize_advice(f.reasoning.strip())
+                if changed:
+                    notes.append(f"forecaster {h}d: removed investment-advice wording")
             sources_here = valid_sources | {c for c in cites if not c.startswith("B:")}
             p, fin_notes = finalize(
                 h,

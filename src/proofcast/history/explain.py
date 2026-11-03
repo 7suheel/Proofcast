@@ -20,7 +20,7 @@ from proofcast.llm.base import BudgetExceededError, Provider, TokenBudget
 from proofcast.llm.jsonout import complete_json
 from proofcast.models import Event
 from proofcast.prompts import load_prompt
-from proofcast.security import UNTRUSTED_RULES, wrap_untrusted
+from proofcast.security import UNTRUSTED_RULES, neutralize_advice, wrap_untrusted
 
 Quality = Literal["thin", "moderate", "strong"]
 
@@ -150,7 +150,10 @@ def explain_drawdown(
         if not valid:
             notes.append("dropped a contributor without valid citations")
             continue
-        contributors.append(Contributor(text=c.text.strip(), citations=valid))
+        text, changed = neutralize_advice(c.text.strip())
+        if changed:
+            notes.append("removed investment-advice wording")
+        contributors.append(Contributor(text=text, citations=valid))
     quality: Quality = reply.evidence_quality
     cannot = [t.strip() for t in reply.cannot_tell[:4] if t.strip()]
     if evidence.is_thin or not contributors:
