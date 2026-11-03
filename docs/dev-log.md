@@ -110,3 +110,25 @@ prices|news|filings|macro|all`.
   NFKC-normalised and zero-width characters removed before matching.
 - Windows note: paths in `proofcast.toml` must be relative or Windows-style; an MSYS-style
   `/c/...` path is read by Python as `C:\c\...`.
+
+## 2026-11-03 — Phase 3: history and "Why did it fall?"
+
+- Drawdowns: an episode runs from a running peak close to the first close back at that peak;
+  the trough is its lowest close. Reported when deeper than the threshold (20% stocks, 35%
+  crypto). The last episode may be unrecovered.
+- Evidence window: 7 days before the peak until the end of the trough day. Relevance =
+  kind weight x closeness x negative-headline bonus x next-day price reaction (formula in the
+  `history/linker.py` docstring, to be copied into docs/methodology.md).
+- Macro releases only count when they are notable moves (CPI m/m >= 0.4%, unemployment or fed
+  funds change >= 0.2 points). A live check on SOL's 2025-26 drawdown showed that routine
+  monthly releases otherwise fill the list.
+- Market context: asset change vs benchmark change over the same dates (S&P 500 from FRED for
+  stocks and BTC; BTC for other crypto); labels "market-wide" (benchmark share >= 50%),
+  "partly market-wide" (>= 25%), "mostly asset-specific".
+- History agent: prompt in `prompts/history.md`; evidence wrapped in `<untrusted_source>` with
+  injection warnings; citations outside the evidence are dropped, contributors without a valid
+  citation are dropped, fewer than 3 items forces "thin", and the model is never called when
+  there is no evidence. Invalid JSON gets one repair attempt, then the rules summary is used.
+- A minimal LLM core (Provider protocol, FakeProvider, token budget, JSON validation) landed
+  here because the History agent needs it; real providers come in Phase 4.
+- CLI: `proofcast history <asset>`, `proofcast why <asset> <date> [--no-ai]`.
