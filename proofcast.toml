@@ -3,7 +3,7 @@
 
 [project]
 name = "Proofcast"
-site_url = "https://7suheel.github.io/proofcast/"
+site_url = "https://7suheel.github.io/Proofcast/"
 repo_url = "https://github.com/7suheel/proofcast"
 data_dir = "data"
 ledger_path = "ledger/forecasts.jsonl"
