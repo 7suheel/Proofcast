@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Example Atom Feed</title>
+  <id>urn:example:feed</id>
+  <updated>2024-08-05T12:00:00Z</updated>
+  <entry>
+    <title>Ethereum developers schedule upgrade</title>
+    <link href="https://atom.example.com/eth-upgrade"/>
+    <id>urn:example:1</id>
+    <updated>2024-08-05T11:00:00+02:00</updated>
+    <summary>Ether holders watch the timeline.</summary>
+  </entry>
+</feed>

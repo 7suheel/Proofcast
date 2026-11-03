@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Example Markets Feed</title>
+    <link>https://feed.example.com/</link>
+    <description>Invented headlines for tests</description>
+    <item>
+      <title>Apple beats estimates as iPhone sales rise</title>
+      <link>https://feed.example.com/2024/08/01/apple-beats.html</link>
+      <description><![CDATA[<p>Apple Inc. (AAPL) reported quarterly revenue <b>above</b> forecasts &amp; raised its outlook.</p>]]></description>
+      <pubDate>Thu, 01 Aug 2024 20:35:00 GMT</pubDate>
+      <guid isPermaLink="false">a1</guid>
+    </item>
+    <item>
+      <title>Coca-Cola raises dividend</title>
+      <link>https://feed.example.com/2024/08/01/ko-dividend.html</link>
+      <description>The Coca-Cola Company said it would raise its dividend. Ticker: $KO.</description>
+      <pubDate>Thu, 01 Aug 2024 14:00:00 -0400</pubDate>
+    </item>
+    <item>
+      <title>Bitcoin slips below $60,000</title>
+      <link>https://feed.example.com/2024/08/02/bitcoin.html</link>
+      <description>Crypto markets fell overnight.</description>
+      <pubDate>Fri, 02 Aug 2024 03:10:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>A meta-analysis of commuting habits</title>
+      <link>https://feed.example.com/2024/08/02/commute.html</link>
+      <description>Researchers looked at how people get to work. The KO round of a tournament.</description>
+      <pubDate>Fri, 02 Aug 2024 05:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Undated Nvidia story</title>
+      <link>https://feed.example.com/nvidia-undated.html</link>
+      <description>No date on this one.</description>
+    </item>
+    <item>
+      <title>Tesla item from the future</title>
+      <link>https://feed.example.com/tesla-future.html</link>
+      <pubDate>Fri, 31 Dec 2099 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Item with a dangerous link Microsoft</title>
+      <link>javascript:alert(document.cookie)</link>
+      <pubDate>Fri, 02 Aug 2024 05:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>

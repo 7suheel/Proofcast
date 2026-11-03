@@ -1,0 +1,8 @@
+{"articles":[
+{"url":"https://news.example.com/apple-shares-slide","url_mobile":"","title":"Apple shares slide after supplier warning","seendate":"20240805T143000Z","socialimage":"","domain":"news.example.com","language":"English","sourcecountry":"United States"},
+{"url":"https://markets.example.org/tech-selloff","url_mobile":"","title":"Apple, Microsoft and Nvidia lead tech selloff","seendate":"20240805T160000Z","socialimage":"","domain":"markets.example.org","language":"English","sourcecountry":"United States"},
+{"url":"javascript:alert(1)","title":"bad url","seendate":"20240805T160000Z","domain":"x"},
+{"url":"https://news.example.com/no-date","title":"Missing date"},
+{"url":"https://news.example.com/celebrity","title":"Singer shares memories of an old song","seendate":"20240805T160000Z","domain":"news.example.com"},
+{"url":"https://news.example.com/future","title":"Apple future item","seendate":"20991231T000000Z","domain":"news.example.com"}
+]}
