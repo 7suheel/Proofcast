@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Methodology{% endblock %}
+{% block content %}
+<h1>Methodology</h1>
+
+<h2>The question</h2>
+<p>For each asset and each horizon ({{ cfg.forecast.horizons|join(' and ') }} days), Proofcast asks: will the close of the first trading day on or after <em>reference date + horizon</em> be higher than the <em>reference close</em>? The reference close is the last daily close that was complete before the forecast was made. The rule is stored with every forecast and is checked by code, from price data only.</p>
+
+<h2>No lookahead</h2>
+<ul>
+<li>Every data point carries the time it became public: news by publication time, SEC filings by EDGAR acceptance time (read conservatively as US Eastern Standard Time), macro data by first release date (estimated conservatively when FRED's vintage data is not available), daily bars once the session has closed (22:00 UTC for US stocks, 00:00 UTC next day for crypto).</li>
+<li>A forecast made at time T only sees data published strictly before T. The code checks this twice.</li>
+<li>Only live forecasts enter the ledger. Language models may have memorised past events, so any backtest of the AI panel overstates its accuracy; backtests are never shown as track record.</li>
+</ul>
+
+<h2>The panel</h2>
+<p>With a model configured (bring your own key, or a free local model through Ollama), News, Filings, Technical, Macro and History analysts each see their part of the point-in-time context. Bull and Bear argue both sides, a Skeptic reviews the arguments, and a Forecaster gives one probability per horizon. News and filings are wrapped as untrusted data that the models are told never to follow.</p>
+<p>Then our code, not the model, decides:</p>
+<ul>
+<li>citations that are not in the context are dropped, and the agent's confidence is lowered;</li>
+<li>with fewer than 3 distinct, validly cited sources the forecast is pulled halfway back to the base rate, and again when the agents disagree strongly (weighted spread above 0.15);</li>
+<li>probabilities are clamped to [{{ cfg.forecast.min_probability }}, {{ cfg.forecast.max_probability }}];</li>
+<li>agents with a worse track record get less weight: <code>weight = clamp(exp(-10 × (Brier − 0.25)), 0.25, 2)</code> over their last 50 resolved forecasts, once they have 10.</li>
+</ul>
+<p>Without a model, the published forecast is the <strong>momentum baseline</strong>, labelled as such.</p>
+
+<h2>Baselines</h2>
+<ul>
+<li><strong>Always 50%</strong>: a coin flip. Brier score 0.25.</li>
+<li><strong>Base rate</strong>: the share of past windows of the same length that ended higher, over the last {{ cfg.history.years }} years of history available at forecast time, smoothed as (k + 1) / (n + 2).</li>
+<li><strong>Momentum</strong>: base rate + 0.10 × tanh(r / σ), where r is the log return over the horizon just ended and σ its typical size.</li>
+</ul>
+<p>Every forecast stores all three baselines for the same question at the same time, so comparisons are like for like.</p>
+
+<h2>Scoring</h2>
+<ul>
+<li><strong>Brier score</strong>: mean of (probability − outcome)². Lower is better.</li>
+<li><strong>Log score</strong>: mean of ln(probability given to what happened). Higher (closer to 0) is better.</li>
+<li><strong>Hit rate</strong>: share of forecasts on the right side of 50% (exactly 50% counts as half).</li>
+<li><strong>Calibration</strong>: in each 10% bucket, the mean forecast against the observed frequency.</li>
+</ul>
+<p>The track record says plainly when a setup is not better than a baseline, and when fewer than 30 resolved forecasts make it too early to tell skill from luck. A forecast is void (and unscored) if no price bar exists within 10 days after its target date.</p>
+
+<h2>The ledger</h2>
+<p>Forecasts, resolutions and corrections are appended to <code>ledger/forecasts.jsonl</code>. Each entry includes the SHA-256 hash of the previous entry, so editing, deleting, reordering or inserting anything breaks the chain. Entries are never edited; a correction is a new entry that refers to the old one and never removes it from scoring. The git history of the repository is a second, independent record of when each line was committed.</p>
+
+<h2>"Why did it fall?"</h2>
+<p>Drawdowns are peak-to-trough falls in daily closes deeper than {{ (cfg.history.stock_drawdown_threshold * 100)|round|int }}% (stocks) or {{ (cfg.history.crypto_drawdown_threshold * 100)|round|int }}% (crypto). Evidence is collected from {{ cfg.history.evidence_days_before }} days before the peak to the trough and ranked by kind, closeness in time, negative headline words and the next-day price reaction. Macro releases count only when they were notable moves. Market context compares the fall with the S&amp;P 500 (stocks, BTC) or BTC (other crypto).</p>
+
+<h2>Data sources</h2>
+<p>All free: Coinbase Exchange and CoinGecko (crypto prices), Stooq and, when allowed, the unofficial Yahoo Finance chart API (stock prices), SEC EDGAR (filings and reported figures), FRED (macro), public RSS feeds and the GDELT DOC API (news).</p>
+
+<h2>Limitations</h2>
+<ul>
+<li>Short-horizon price moves are mostly noise; good calibration matters more than "being right".</li>
+<li>News coverage is incomplete, especially before 2017, and feeds can change or disappear.</li>
+<li>Revised macro values are used for past periods, a mild form of lookahead for historical analysis.</li>
+<li>Stock prices are split-adjusted but not dividend-adjusted.</li>
+<li>Forecasts depend on whichever model the operator configured; different models give different results, which is why scores are kept per setup.</li>
+</ul>
+{% endblock %}

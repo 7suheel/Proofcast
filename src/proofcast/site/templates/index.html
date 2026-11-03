@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "macros.html" import prob %}
+{% block title %}Forecasts{% endblock %}
+{% block content %}
+<h1>An AI market analyst that shows its own report card</h1>
+<p class="lead">Probabilities that each asset closes <strong>higher</strong> than its last close after {% for h in horizons %}{{ h }}{% if not loop.last %} and {% endif %}{% endfor %} days, recorded in a public hash-chained ledger before the outcome is known and scored automatically afterwards. They are not recommendations.</p>
+<p class="small">Track record so far: {{ record.n_forecasts }} forecasts, {{ record.n_resolved }} resolved. <a href="track-record.html">See how good they really are</a>.</p>
+
+<div class="table-wrap">
+<table class="forecasts">
+<thead><tr><th>Asset</th>{% for h in horizons %}<th>{{ h }} days</th>{% endfor %}<th>Why</th></tr></thead>
+<tbody>
+{% for row in rows %}
+<tr>
+  <td><a href="assets/{{ row.asset.symbol }}.html"><strong>{{ row.asset.symbol }}</strong></a><br><span class="small">{{ row.asset.name }}</span></td>
+  {% for f in row.cells %}<td>{{ prob(f) }}</td>{% endfor %}
+  <td class="small">{% set f = row.cells[-1] or row.cells[0] %}{% if f %}{{ f.final_reasoning|truncate(160) }}{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

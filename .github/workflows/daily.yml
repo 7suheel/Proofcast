@@ -1,0 +1,83 @@
+name: Daily
+
+# Prices, filings and macro -> resolve -> forecasts -> score -> site.
+# Each step commits separately so the git history is the audit trail.
+
+on:
+  schedule:
+    - cron: "30 22 * * *" # after the US close; crypto bars complete at 00:00 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: proofcast-data
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: uv sync --locked --no-dev
+
+      - name: Fetch prices, filings and macro
+        env:
+          PROOFCAST_SEC_USER_AGENT: ${{ secrets.PROOFCAST_SEC_USER_AGENT }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+        run: |
+          status=0
+          uv run --no-dev proofcast fetch prices || status=1
+          uv run --no-dev proofcast fetch filings || status=1
+          uv run --no-dev proofcast fetch macro || status=1
+          if [ "$status" -ne 0 ]; then echo "::warning::some fetches failed; see the log"; fi
+      - name: Commit data
+        run: 'scripts/commit-data.sh "data: daily prices, filings and macro"'
+
+      - name: Verify ledger
+        run: uv run --no-dev proofcast ledger verify
+      - name: Resolve finished forecasts
+        run: uv run --no-dev proofcast resolve
+      - name: Commit resolutions
+        run: 'scripts/commit-data.sh "ledger: resolve finished forecasts"'
+
+      - name: Baseline forecasts (no AI)
+        run: uv run --no-dev proofcast forecast --all --no-ai
+      - name: AI forecasts (only when a model is configured)
+        if: ${{ vars.PROOFCAST_MODEL != '' }}
+        env:
+          PROOFCAST_MODEL: ${{ vars.PROOFCAST_MODEL }}
+          PROOFCAST_MAX_TOKENS: ${{ vars.PROOFCAST_MAX_TOKENS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PROOFCAST_COMPAT_API_KEY: ${{ secrets.PROOFCAST_COMPAT_API_KEY }}
+          PROOFCAST_COMPAT_BASE_URL: ${{ vars.PROOFCAST_COMPAT_BASE_URL }}
+        run: uv run --no-dev proofcast forecast --all
+      - name: Commit forecasts
+        run: 'scripts/commit-data.sh "ledger: daily forecasts"'
+
+      - name: Score
+        run: uv run --no-dev proofcast score --output data/track_record.json
+      - name: Verify ledger again
+        run: uv run --no-dev proofcast ledger verify
+      - name: Commit track record
+        run: 'scripts/commit-data.sh "data: track record"'
+
+  pages:
+    needs: daily
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml

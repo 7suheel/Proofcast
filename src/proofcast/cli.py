@@ -24,11 +24,15 @@ fetch_app = typer.Typer(help="Fetch data from free sources into data/.", no_args
 app.add_typer(fetch_app, name="fetch")
 ledger_app = typer.Typer(help="Inspect the public ledger.", no_args_is_help=True)
 app.add_typer(ledger_app, name="ledger")
+site_app = typer.Typer(help="Build or preview the static website.", no_args_is_help=True)
+app.add_typer(site_app, name="site")
 
 ConfigOption = typer.Option(None, "--config", help="Path to proofcast.toml.")
 AssetOption = typer.Option(None, "--asset", "-a", help="Asset symbol (repeatable).")
 SinceOption = typer.Option(None, "--since", help="Start date, YYYY-MM-DD.")
 OutputOption = typer.Option(None, "--output", help="Also write the result as JSON here.")
+SiteDirOption = typer.Option(Path("site"), "--out", help="Site output directory.")
+PortOption = typer.Option(8000, "--port", help="Local port.")
 
 
 def _version_callback(value: bool) -> None:
@@ -392,6 +396,40 @@ def score(
     if output is not None:
         atomic_write_text(output, record.model_dump_json(indent=1) + "\n")
         typer.echo(f"wrote {output}")
+
+
+@site_app.command("build")
+def site_build(
+    out: Path = SiteDirOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Build the static site from committed data and the ledger (no AI, no network)."""
+    from proofcast.site.builder import build_site
+
+    cfg = _load(config)
+    result = build_site(cfg, out)
+    typer.echo(f"built {len(result.pages)} pages into {out}")
+    if not result.ledger_ok:
+        typer.echo("warning: ledger verification failed; the site shows a warning banner", err=True)
+
+
+@site_app.command("serve")
+def site_serve(
+    out: Path = SiteDirOption,
+    port: int = PortOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Build, then serve the site on http://127.0.0.1:<port> for local preview."""
+    import contextlib
+    import functools
+    import http.server
+
+    site_build(out=out, config=config)
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(out))
+    with http.server.ThreadingHTTPServer(("127.0.0.1", port), handler) as httpd:
+        typer.echo(f"serving {out} at http://127.0.0.1:{port}/ (Ctrl-C to stop)")
+        with contextlib.suppress(KeyboardInterrupt):
+            httpd.serve_forever()
 
 
 @app.command()

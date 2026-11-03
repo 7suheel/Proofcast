@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "macros.html" import prob, ext %}
+{% block title %}{{ asset.symbol }}{% endblock %}
+{% block content %}
+<h1>{{ asset.symbol }} <span class="muted">{{ asset.name }}</span></h1>
+{% if last_bar %}<p class="small">Last close {{ "{:,.6g}".format(last_bar.close) }} on {{ last_bar.date }} (source: {{ last_bar.source }}). Shaded areas: major drawdowns (peak to trough).</p>{% endif %}
+<figure>{{ chart|safe }}</figure>
+
+<h2>Latest forecasts</h2>
+<div class="cards">
+{% for f in forecasts %}
+<section class="card">
+  {% if f %}
+  <h3>{{ f.horizon_days }} days</h3>
+  {{ prob(f) }}
+  <p class="small">{{ f.question }}</p>
+  <p>{{ f.final_reasoning }}</p>
+  <p class="small">Baselines for the same question: always 50% · base rate {{ f.baselines.get('base_rate')|pct }} · momentum {{ f.baselines.get('momentum')|pct }}. Setup: <code>{{ f.setup }}</code>. Made {{ f.created_at.strftime('%Y-%m-%d %H:%M') }} UTC.</p>
+  {% if f.agent_opinions %}
+  <details><summary>Panel ({{ f.agent_opinions|length }} agents)</summary>
+    <ul class="small">
+    {% for o in f.agent_opinions %}<li><strong>{{ o.agent }}</strong> (confidence {{ o.confidence|num('.2f') }}, weight {{ o.weight|num('.2f') }}): {{ o.summary }}</li>{% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+  {% if f.sources %}
+  <details><summary>Sources ({{ f.sources|length }})</summary>
+    <ul class="small">
+    {% for s in f.sources %}<li>[{{ s.id }}] {{ s.published_at.strftime('%Y-%m-%d') }} {% if s.url %}{{ ext(s.url, s.title|truncate(120)) }}{% else %}{{ s.title|truncate(120) }}{% endif %}</li>{% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+  {% else %}
+  <p class="muted">No forecast yet.</p>
+  {% endif %}
+</section>
+{% endfor %}
+</div>
+
+<h2>Major drawdowns</h2>
+{% if drawdowns %}
+<ul>{% for d in drawdowns|reverse %}<li>-{{ d.depth_pct|num('.1f') }}% from {{ d.start }} to {{ d.trough }}, {% if d.recovery %}recovered {{ d.recovery }}{% else %}not recovered{% endif %} · <a href="../why.html#{{ d.id }}">why?</a></li>{% endfor %}</ul>
+{% else %}<p class="muted">None deeper than the threshold in the stored history.</p>{% endif %}
+
+<h2>News timeline</h2>
+{% if news %}
+<ul class="timeline">{% for n in news %}<li><span class="small">{{ n.published_at.strftime('%Y-%m-%d %H:%M') }} · {{ n.source }}</span><br>{{ ext(n.url, n.title) }}</li>{% endfor %}</ul>
+{% else %}<p class="muted">No stored news for this asset yet.</p>{% endif %}
+
+<h2>Filings</h2>
+{% if filings %}
+<ul>{% for f in filings %}<li>{{ f.filed_at.strftime('%Y-%m-%d') }} {{ ext(f.url, f.form_type ~ (' items ' ~ f.items|join(', ') if f.items else '')) }}{% if f.title %} <span class="small">{{ f.title }}</span>{% endif %}</li>{% endfor %}</ul>
+{% else %}<p class="muted">{% if asset.kind == 'crypto' %}Crypto assets have no SEC filings.{% else %}No stored filings yet.{% endif %}</p>{% endif %}
+{% endblock %}

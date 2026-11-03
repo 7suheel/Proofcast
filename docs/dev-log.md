@@ -208,3 +208,37 @@ prices|news|filings|macro|all`.
   default; tampered ledgers make resolve and score fail loudly.
 - CLI: `proofcast resolve [--dry-run]`, `proofcast score [--output track_record.json]`,
   `proofcast ledger verify`.
+
+## 2026-11-03 — Phase 7: static website and scheduled jobs
+
+- `proofcast site build` renders Jinja2 templates into `site/`: Home, one page per asset
+  (price chart with drawdowns shaded, latest forecasts with panel and sources, news timeline,
+  filings), "Why did it fall?", Track record (verdict, Brier/log/hit rate vs the three baselines
+  on the same questions, calibration chart, every forecast with its outcome and a link to the
+  commit that recorded it, from `git blame`), Methodology and Disclaimer. `proofcast site serve`
+  previews it on 127.0.0.1.
+- **Deviation, on purpose:** the brief asked for "a small vendored chart library". The site
+  ships no JavaScript at all; charts are SVG rendered at build time. That gives no runtime
+  dependency and no CDN, dark mode through CSS variables, and a strict
+  Content-Security-Policy (`default-src 'none'; style-src 'self'`) that blocks scripts
+  entirely, which matters because pages show untrusted headlines. Jinja2 autoescaping is on;
+  external links use `rel="noopener nofollow ugc noreferrer"`.
+- Every page shows the disclaimer. If the ledger fails verification, every page shows a red
+  banner, and the ledger file is published so anyone can verify it.
+- Checked in the browser at 375x812 (phone) and desktop, light and dark: no horizontal
+  overflow, no console or CSP errors. Chart axis labels were too small on phones and printed
+  "1.247e+05" for BTC; fixed (larger text, compact labels like 125k).
+- Workflows (all actions pinned to SHAs, `permissions: {}` at the top, job-level grants only):
+  - `news.yml`: hourly RSS fetch, commits `data/news`.
+  - `daily.yml` (22:30 UTC): fetch prices/filings/macro -> commit; verify ledger; resolve ->
+    commit; baseline forecasts plus AI forecasts **only if the repository variable
+    `PROOFCAST_MODEL` is set** (keys from secrets reach only that step) -> commit; score and
+    verify -> commit; then calls `pages.yml`.
+  - `pages.yml`: build with full git history (for commit links) and deploy to GitHub Pages;
+    also runs on code changes and on demand.
+  - All data jobs share the concurrency group `proofcast-data` (never run in parallel); CI
+    ignores pushes that only touch `data/` or `ledger/`.
+  - `scripts/commit-data.sh` commits with a clear message and rebases and retries on push.
+- Validation: `actionlint` (1.7.12 via `uvx --from actionlint-py`) found unquoted `run:`
+  values containing `": "`; fixed, now clean. A test also asserts every action is SHA-pinned and
+  no `${{ github.event... }}` is interpolated.

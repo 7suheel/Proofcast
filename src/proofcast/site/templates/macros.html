@@ -1,0 +1,13 @@
+{% macro prob(f) %}
+{% if f %}
+<div class="prob">
+  <span class="big">{{ f.probability|pct }}</span>
+  <meter class="bar" min="0" max="1" value="{{ f.probability }}">{{ f.probability|pct }}</meter>
+  <span class="small">base rate {{ f.base_rate|pct }}{% if f.is_baseline %} · <em>baseline, no AI</em>{% endif %}</span>
+</div>
+{% else %}
+<span class="muted">no forecast yet</span>
+{% endif %}
+{% endmacro %}
+
+{% macro ext(url, text) %}<a href="{{ url }}" rel="noopener nofollow ugc noreferrer">{{ text }}</a>{% endmacro %}

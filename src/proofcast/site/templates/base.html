@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>{% block title %}Proofcast{% endblock %} · Proofcast</title>
+<link rel="stylesheet" href="{{ root }}style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{ root }}index.html">Proofcast</a>
+  <nav>
+    <a href="{{ root }}index.html">Forecasts</a>
+    <a href="{{ root }}track-record.html">Track record</a>
+    <a href="{{ root }}why.html">Why did it fall?</a>
+    <a href="{{ root }}methodology.html">Methodology</a>
+    <a href="{{ root }}disclaimer.html">Disclaimer</a>
+  </nav>
+</header>
+<p class="notice"><strong>{{ disclaimer }}</strong></p>
+{% if not ledger_check.ok %}
+<p class="alarm"><strong>Ledger verification FAILED.</strong> The published ledger does not pass its hash-chain check ({{ ledger_check.errors|length }} problem(s)). Do not trust the numbers below until this is fixed.</p>
+{% endif %}
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <p>{{ disclaimer }}</p>
+  <p>Generated {{ generated_at.strftime('%Y-%m-%d %H:%M') }} UTC by Proofcast {{ version }}. Free data sources; see <a href="{{ root }}methodology.html">methodology</a>.
+  Ledger: {{ ledger_check.entries }} entries{% if ledger_check.ok %}, hash chain verified{% endif %} · <a href="{{ root }}ledger/forecasts.jsonl">download</a>{% if project.repo_url %} · <a href="{{ project.repo_url }}" rel="noopener">source</a>{% endif %}</p>
+</footer>
+</body>
+</html>

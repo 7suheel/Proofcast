@@ -13,7 +13,7 @@ htmlcov/
 
 # Proofcast local state
 .cache/
-site/
+/site/
 .env
 *.local.toml
 
@@ -22,3 +22,6 @@ site/
 Thumbs.db
 .idea/
 .vscode/
+
+# Local agent/editor settings
+.claude/
