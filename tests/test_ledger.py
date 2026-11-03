@@ -95,6 +95,10 @@ def test_tampered_probability_detected(ledger: Ledger) -> None:
     result = ledger.verify()
     assert not result.ok
     assert any("entry 2" in e and "hash does not match" in e for e in result.errors)
+    # Normal reads refuse a tampered ledger, so nothing downstream scores it.
+    with pytest.raises(LedgerError):
+        ledger.forecasts()
+    assert len(ledger.read(verify=False)) == 3
 
 
 def test_rehashed_edit_still_breaks_next_link(ledger: Ledger) -> None:

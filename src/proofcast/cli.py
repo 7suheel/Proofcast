@@ -9,6 +9,7 @@ import typer
 
 from proofcast import DISCLAIMER, __version__
 from proofcast.config import Config, load_config
+from proofcast.ledger import Ledger
 from proofcast.llm.base import Provider, TokenBudget
 from proofcast.models import Asset, Forecast
 from proofcast.storage import DataStore
@@ -21,10 +22,13 @@ app = typer.Typer(
 )
 fetch_app = typer.Typer(help="Fetch data from free sources into data/.", no_args_is_help=True)
 app.add_typer(fetch_app, name="fetch")
+ledger_app = typer.Typer(help="Inspect the public ledger.", no_args_is_help=True)
+app.add_typer(ledger_app, name="ledger")
 
 ConfigOption = typer.Option(None, "--config", help="Path to proofcast.toml.")
 AssetOption = typer.Option(None, "--asset", "-a", help="Asset symbol (repeatable).")
 SinceOption = typer.Option(None, "--since", help="Start date, YYYY-MM-DD.")
+OutputOption = typer.Option(None, "--output", help="Also write the result as JSON here.")
 
 
 def _version_callback(value: bool) -> None:
@@ -266,7 +270,8 @@ def forecast(
     """Make live forecasts and append them to the hash-chained ledger."""
     from proofcast.agents.context import NoPriceDataError
     from proofcast.forecast.engine import already_forecast, assert_live, make_forecasts
-    from proofcast.ledger import Ledger, LedgerError
+    from proofcast.ledger import LedgerError
+    from proofcast.weighting import agent_weights
 
     cfg = _load(config)
     if not all_assets and not asset:
@@ -275,9 +280,10 @@ def forecast(
     assets = _assets(cfg, None if all_assets else asset)
     provider, budget = _provider(no_ai, model)
     store = DataStore(cfg.data_dir)
-    ledger = Ledger(cfg.ledger_path)
+    ledger = _ledger(cfg)
     try:
         existing = ledger.forecasts()
+        weights = agent_weights(existing, ledger.resolutions())
     except LedgerError as exc:
         typer.echo(f"error: ledger is broken: {exc}", err=True)
         raise typer.Exit(1) from exc
@@ -285,7 +291,9 @@ def forecast(
     new: list[Forecast] = []
     for a in assets:
         try:
-            result = make_forecasts(cfg, store, a.symbol, now, provider, budget=budget)
+            result = make_forecasts(
+                cfg, store, a.symbol, now, provider, budget=budget, weights=weights
+            )
         except NoPriceDataError as exc:
             typer.echo(f"skip {a.symbol}: {exc}")
             continue
@@ -309,6 +317,81 @@ def forecast(
         raise typer.Exit(1) from exc
     typer.echo(f"recorded {len(new)} forecast(s) in {cfg.ledger_path}")
     typer.echo(DISCLAIMER)
+
+
+# ---------------------------------------------------------------------------
+# ledger / resolve / score
+# ---------------------------------------------------------------------------
+
+
+def _ledger(cfg: Config) -> Ledger:
+    from proofcast.ledger import Ledger
+
+    return Ledger(cfg.ledger_path)
+
+
+@ledger_app.command("verify")
+def ledger_verify(config: Path | None = ConfigOption) -> None:
+    """Check the whole hash chain of the ledger."""
+    cfg = _load(config)
+    result = _ledger(cfg).verify()
+    if result.ok:
+        typer.echo(f"ok: {result.entries} entries, chain head {result.head}")
+        return
+    typer.echo(f"FAILED: {len(result.errors)} problem(s) in {result.entries} entries", err=True)
+    for e in result.errors:
+        typer.echo(f"  - {e}", err=True)
+    raise typer.Exit(1)
+
+
+@app.command()
+def resolve(
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show, but do not write."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Resolve forecasts whose horizon has ended, from price data only (no AI)."""
+    from proofcast.ledger import LedgerError
+    from proofcast.resolve import resolve_due
+
+    cfg = _load(config)
+    ledger = _ledger(cfg)
+    try:
+        forecasts, done = ledger.forecasts(), set(ledger.resolutions())
+    except LedgerError as exc:
+        typer.echo(f"error: ledger is broken: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    new = resolve_due(forecasts, done, DataStore(cfg.data_dir), datetime.now(UTC))
+    for r in new:
+        outcome = "void" if r.status == "void" else ("higher" if r.outcome else "not higher")
+        typer.echo(f"{r.forecast_id}: {outcome} ({r.target_bar_date}) {r.note}".rstrip())
+    if dry_run:
+        typer.echo(f"dry run: {len(new)} resolution(s) not written")
+        return
+    ledger.append(new)
+    typer.echo(f"recorded {len(new)} resolution(s)")
+
+
+@app.command()
+def score(
+    output: Path | None = OutputOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Score resolved forecasts against the baselines."""
+    from proofcast.ledger import LedgerError
+    from proofcast.scoring import track_record, track_record_text
+    from proofcast.storage import atomic_write_text
+
+    cfg = _load(config)
+    ledger = _ledger(cfg)
+    try:
+        record = track_record(ledger.forecasts(), ledger.resolutions(), now=datetime.now(UTC))
+    except LedgerError as exc:
+        typer.echo(f"error: ledger is broken: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(track_record_text(record))
+    if output is not None:
+        atomic_write_text(output, record.model_dump_json(indent=1) + "\n")
+        typer.echo(f"wrote {output}")
 
 
 @app.command()
