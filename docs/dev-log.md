@@ -42,3 +42,27 @@ User-Agent; the SEC one is configured by the maintainer.
   Windows and Linux.
 - GitHub Actions pinned to commit SHAs (resolved with `git ls-remote`): checkout v7.0.1,
   setup-uv v10.3.3.
+
+## 2026-11-03 — Phase 1: data model and storage
+
+- `models.py`: frozen Pydantic v2 models with `extra="forbid"`. All datetimes must be
+  timezone-aware and are normalised to UTC; naive datetimes are rejected.
+- Every public data point carries the time it became public: `PriceBar.available_at`,
+  `NewsItem.published_at`, `Filing.filed_at` (SEC acceptance time),
+  `MacroObservation.published_at` (+ `published_at_estimated`).
+- Bar availability is conservative: stock bars count as public at 22:00 UTC on the trading day
+  (NYSE closes 20:00/21:00 UTC); crypto daily candles at 00:00 UTC the next day.
+- Storage: daily bars as CSV per asset (`data/prices/`), macro as CSV per series
+  (`data/macro/`), news and filings as JSON Lines per month. CSV over Parquet: text diffs keep
+  the git history readable as an audit trail. Writes are atomic and deterministic.
+- News text retention: `prune_news_text` drops `summary` after 90 days, keeping title, url and
+  timestamps.
+- Macro revisions: a newer fetch may revise a value, but the publication time stays the one first
+  stored (or the real FRED first-release time). Known limitation: revised values are used for
+  old periods, which is a mild form of lookahead for backtests (documented in methodology).
+- Corrections in the ledger are notes only; they never remove a forecast from scoring, so the
+  track record cannot be cleaned up after the fact.
+- Point-in-time layer `pit.get_data(store, asset, as_of)` filters with strict `<` and then
+  re-checks the snapshot with `assert_no_lookahead`. Tests cover exact-boundary cases, session
+  hours, crypto midnight, macro publication lag and naive timestamps.
+- Tests block all socket connections (`conftest.py`) so no test can touch the network.
