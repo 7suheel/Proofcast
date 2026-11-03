@@ -15,7 +15,9 @@ from proofcast.models import CalibrationBucket, Drawdown, PriceBar
 MAX_POINTS = 700
 
 
-def _downsample(points: Sequence[tuple[date, float]], limit: int = MAX_POINTS) -> list[tuple[date, float]]:
+def _downsample(
+    points: Sequence[tuple[date, float]], limit: int = MAX_POINTS
+) -> list[tuple[date, float]]:
     if len(points) <= limit:
         return list(points)
     step = len(points) / limit
@@ -79,20 +81,25 @@ def price_chart(
     for frac in (0.0, 0.5, 1.0):
         v = lo + frac * rng
         yy = y(v)
-        parts.append(f'<line class="grid" x1="{pad_l}" x2="{width - pad_r}" y1="{yy:.1f}" y2="{yy:.1f}"/>')
-        parts.append(f'<text class="axis" x="{pad_l - 6}" y="{yy + 4:.1f}" text-anchor="end">{axis_label(v)}</text>')
+        parts.append(
+            f'<line class="grid" x1="{pad_l}" x2="{width - pad_r}" y1="{yy:.1f}" y2="{yy:.1f}"/>'
+        )
+        parts.append(
+            f'<text class="axis" x="{pad_l - 6}" y="{yy + 4:.1f}" text-anchor="end">'
+            f"{axis_label(v)}</text>"
+        )
     for year in range(d0.year + 1, d1.year + 1):
         xx = x(date(year, 1, 1))
-        parts.append(f'<text class="axis" x="{xx:.1f}" y="{height - 4}" text-anchor="middle">{year}</text>')
+        parts.append(
+            f'<text class="axis" x="{xx:.1f}" y="{height - 4}" text-anchor="middle">{year}</text>'
+        )
     path = " ".join(f"{x(d):.1f},{y(v):.1f}" for d, v in points)
     parts.append(f'<polyline class="line" fill="none" points="{path}"/>')
     parts.append("</svg>")
     return "".join(parts)
 
 
-def calibration_chart(
-    series: Mapping[str, Sequence[CalibrationBucket]], *, size: int = 320
-) -> str:
+def calibration_chart(series: Mapping[str, Sequence[CalibrationBucket]], *, size: int = 320) -> str:
     """Forecast probability (x) vs observed frequency (y) per bucket; the diagonal is perfect."""
     pad = 36
     inner = size - 2 * pad
@@ -110,8 +117,13 @@ def calibration_chart(
         f'<line class="diag" x1="{sx(0)}" y1="{sy(0)}" x2="{sx(1)}" y2="{sy(1)}"/>',
     ]
     for t in (0.0, 0.5, 1.0):
-        parts.append(f'<text class="axis" x="{sx(t):.1f}" y="{size - 12}" text-anchor="middle">{t:.0%}</text>')
-        parts.append(f'<text class="axis" x="{pad - 6}" y="{sy(t) + 4:.1f}" text-anchor="end">{t:.0%}</text>')
+        parts.append(
+            f'<text class="axis" x="{sx(t):.1f}" y="{size - 12}" text-anchor="middle">'
+            f"{t:.0%}</text>"
+        )
+        parts.append(
+            f'<text class="axis" x="{pad - 6}" y="{sy(t) + 4:.1f}" text-anchor="end">{t:.0%}</text>'
+        )
     for i, (name, buckets) in enumerate(series.items()):
         cls = f"s{i % 4}"
         pts = [

@@ -87,8 +87,10 @@ def _latest(forecasts: list[Forecast]) -> dict[tuple[str, int], Forecast]:
     for f in sorted(forecasts, key=lambda f: (f.created_at, not f.is_baseline)):
         key = (f.asset, f.horizon_days)
         cur = best.get(key)
-        if cur is None or f.created_at.date() > cur.created_at.date() or (
-            f.created_at.date() == cur.created_at.date() and not f.is_baseline
+        if (
+            cur is None
+            or f.created_at.date() > cur.created_at.date()
+            or (f.created_at.date() == cur.created_at.date() and not f.is_baseline)
         ):
             best[key] = f
     return best
@@ -153,7 +155,9 @@ def build_site(
         bars = store.read_bars(a.symbol)
         drawdowns = asset_drawdowns(cfg, store, a.symbol)
         news = [n for n in store.read_news() if a.symbol in n.assets][-NEWS_PER_ASSET:][::-1]
-        filings = [f for f in store.read_filings() if f.company == a.symbol][-FILINGS_PER_ASSET:][::-1]
+        filings = [f for f in store.read_filings() if f.company == a.symbol][-FILINGS_PER_ASSET:][
+            ::-1
+        ]
         evidence = []
         for d in reversed(drawdowns):
             ev = link_evidence(d, store, cfg, bars=bars)
