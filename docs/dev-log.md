@@ -263,3 +263,20 @@ prices|news|filings|macro|all`.
   JSON-lookalike detection. Details in SECURITY_REVIEW.md; threats in THREAT_MODEL.md.
 - Lesson: Python edit scripts passed through shell heredocs turned `\b` into backspace
   characters; the repository was scanned for control characters afterwards (none left).
+
+## 2026-11-03 — Phase 9: docs and release prep
+
+- README rewritten: pitch, disclaimer, how a forecast is made, quickstart (Ollama and BYOK),
+  commands, how the track record works, data sources, limitations, roadmap. The screenshot
+  section says screenshots come after the first live deploy (no fake images).
+- New docs: `docs/methodology.md` (all formulas), `docs/data-sources.md` (each source's terms,
+  limits and live-verification status), `docs/first-issues.md` (8 good first issues).
+- `CHANGELOG.md` for 0.1.0 (marked unreleased); version set to 0.1.0.
+- `release.yml`: on a `v*` tag pushed by a maintainer, it checks the tag matches the version,
+  runs the tests, builds, runs `twine check --strict`, and publishes with PyPI Trusted Publishing
+  (environment `pypi`, `id-token: write` only in the publish job). No tags were created.
+- Verified: `uv build` produced sdist and wheel; `twine check --strict` passed for both; the wheel
+  contains the prompts, templates, CSS, `py.typed` and the license. Smoke test in a fresh venv
+  outside the repo: `--version`, `doctor`, `analyze SOL --no-ai` on real data,
+  `ledger verify` and `site build` all worked.
+- actionlint clean; zizmor 0 medium/high.
