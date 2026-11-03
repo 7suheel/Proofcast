@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import typer
@@ -10,7 +10,7 @@ import typer
 from proofcast import DISCLAIMER, __version__
 from proofcast.config import Config, load_config
 from proofcast.llm.base import Provider, TokenBudget
-from proofcast.models import Asset
+from proofcast.models import Asset, Forecast
 from proofcast.storage import DataStore
 
 app = typer.Typer(
@@ -209,6 +209,106 @@ def why_cmd(
         typer.echo(f"No major drawdown of {symbol} found around {when}. See `proofcast history`.")
         raise typer.Exit(1)
     typer.echo(why_text(*result))
+
+
+# ---------------------------------------------------------------------------
+# analyze / forecast
+# ---------------------------------------------------------------------------
+
+
+def _as_of(value: str | None) -> datetime:
+    if value is None:
+        return datetime.now(UTC)
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        typer.echo("error: --as-of must be an ISO date or datetime", err=True)
+        raise typer.Exit(2) from exc
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+@app.command()
+def analyze(
+    asset: str = typer.Argument(..., help="Asset symbol."),
+    no_ai: bool = typer.Option(False, "--no-ai", help="Baseline only, no LLM."),
+    model: str | None = typer.Option(None, "--model", help="Override PROOFCAST_MODEL."),
+    as_of: str | None = typer.Option(
+        None, "--as-of", help="Backtest time (never recorded; see the warning)."
+    ),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Print a full analysis report for one asset (nothing is written to the ledger)."""
+    from proofcast.agents.context import NoPriceDataError
+    from proofcast.forecast.engine import make_forecasts, report_text
+
+    cfg = _load(config)
+    symbol = _assets(cfg, [asset])[0].symbol
+    provider, budget = _provider(no_ai, model)
+    try:
+        result = make_forecasts(
+            cfg, DataStore(cfg.data_dir), symbol, _as_of(as_of), provider, budget=budget
+        )
+    except NoPriceDataError as exc:
+        typer.echo(f"error: {exc}. Run `proofcast fetch prices -a {symbol}` first.", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(report_text(result))
+
+
+@app.command()
+def forecast(
+    all_assets: bool = typer.Option(False, "--all", help="Forecast every asset in the universe."),
+    asset: list[str] | None = AssetOption,
+    no_ai: bool = typer.Option(False, "--no-ai", help="Record baseline forecasts only."),
+    model: str | None = typer.Option(None, "--model", help="Override PROOFCAST_MODEL."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show, but do not write."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Make live forecasts and append them to the hash-chained ledger."""
+    from proofcast.agents.context import NoPriceDataError
+    from proofcast.forecast.engine import already_forecast, assert_live, make_forecasts
+    from proofcast.ledger import Ledger, LedgerError
+
+    cfg = _load(config)
+    if not all_assets and not asset:
+        typer.echo("error: pass --all or at least one --asset", err=True)
+        raise typer.Exit(2)
+    assets = _assets(cfg, None if all_assets else asset)
+    provider, budget = _provider(no_ai, model)
+    store = DataStore(cfg.data_dir)
+    ledger = Ledger(cfg.ledger_path)
+    try:
+        existing = ledger.forecasts()
+    except LedgerError as exc:
+        typer.echo(f"error: ledger is broken: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    now = datetime.now(UTC)
+    new: list[Forecast] = []
+    for a in assets:
+        try:
+            result = make_forecasts(cfg, store, a.symbol, now, provider, budget=budget)
+        except NoPriceDataError as exc:
+            typer.echo(f"skip {a.symbol}: {exc}")
+            continue
+        for f in result.forecasts:
+            assert_live(f.created_at, datetime.now(UTC))
+            if already_forecast(existing + new, f):
+                typer.echo(f"skip {f.asset} {f.horizon_days}d: already forecast for this bar")
+                continue
+            new.append(f)
+            typer.echo(
+                f"{f.asset:>6} {f.horizon_days:>3}d  {f.probability:5.1%}  "
+                f"(base rate {f.base_rate:.1%})  {f.setup}"
+            )
+    if dry_run:
+        typer.echo(f"dry run: {len(new)} forecast(s) not written")
+        return
+    try:
+        ledger.append(new)
+    except LedgerError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"recorded {len(new)} forecast(s) in {cfg.ledger_path}")
+    typer.echo(DISCLAIMER)
 
 
 @app.command()
