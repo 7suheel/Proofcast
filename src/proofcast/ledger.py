@@ -103,8 +103,12 @@ class Ledger:
     def __init__(self, path: Path) -> None:
         self.path = path
 
-    def read(self) -> list[Entry]:
+    def read(self, *, verify: bool = True) -> list[Entry]:
+        """All entries. By default the whole chain must verify, so nothing downstream (resolve,
+        score, the site) ever works from a tampered ledger without saying so."""
         entries, errors = _parse_lines(self.path)
+        if not errors and verify:
+            errors = verify_entries(entries).errors
         if errors:
             raise LedgerError("; ".join(errors))
         return entries

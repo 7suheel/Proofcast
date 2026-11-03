@@ -187,3 +187,24 @@ prices|news|filings|macro|all`.
   about LLM memorisation and never writes.
 - CLI: `proofcast analyze <asset>`, `proofcast forecast --all|-a X [--no-ai] [--dry-run]`.
 - Live check: `analyze BTC --no-ai` on real Coinbase data works.
+
+## 2026-11-03 — Phase 6: ledger, scoring and track record
+
+- Resolver: the first stored bar on or after the target date that was complete at resolution
+  time; outcome = target close > reference close, **both from the current stored series**, so a
+  later split adjustment cannot flip the answer. The recorded reference close stays in the
+  ledger, with a note when the series has moved by more than 1%. No bar within
+  `max_wait_days` (10) means the forecast is resolved as `void`, which counts in no score.
+- Scores: Brier, log score, hit rate at 50% (exactly 50% counts as half), ten calibration
+  buckets, and counts, per setup, per asset and per horizon.
+- Baselines (always 50%, base rate, momentum) are scored on the same questions as each setup,
+  using the baseline probabilities stored on each forecast. The verdict says "NOT better than
+  ..." whenever any baseline's Brier score is as good or better, and flags fewer than 30
+  resolved forecasts as too few to tell skill from luck.
+- Agent weighting: `weight = clamp(exp(-10 * (Brier - 0.25)), 0.25, 2)` over each agent's last
+  50 resolved forecasts, or 1 until it has 10. `forecast` applies it.
+- Problem found by a test: `resolve`/`score` read the ledger without checking the chain, so a
+  tampered ledger would have been scored. `Ledger.read()` now verifies the whole chain by
+  default; tampered ledgers make resolve and score fail loudly.
+- CLI: `proofcast resolve [--dry-run]`, `proofcast score [--output track_record.json]`,
+  `proofcast ledger verify`.
