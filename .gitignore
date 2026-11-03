@@ -13,7 +13,7 @@ htmlcov/
 
 # Proofcast local state
 .cache/
-site/
+/site/
 .env
 *.local.toml
 

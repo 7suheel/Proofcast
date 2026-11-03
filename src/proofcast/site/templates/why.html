@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import ext %}
+{% block title %}Why did it fall?{% endblock %}
+{% block content %}
+<h1>Why did it fall?</h1>
+<p class="lead">Every major drawdown in the stored history (deeper than 20% for stocks, 35% for crypto), linked to the news, filings and notable macro releases from a week before the peak to the trough. Timing is not proof of cause: read the "what we can't tell" notes.</p>
+{% for item in items %}
+<h2 id="{{ item.asset.symbol }}">{{ item.asset.symbol }} <span class="muted">{{ item.asset.name }}</span></h2>
+{% if not item.evidence %}<p class="muted">No major drawdowns in the stored history.</p>{% endif %}
+{% for ev, ex in item.evidence %}
+{% set d = ev.drawdown %}
+<section class="card" id="{{ d.id }}">
+  <h3>-{{ d.depth_pct|num('.1f') }}% from {{ d.start }} to {{ d.trough }} <span class="small">{% if d.recovery %}recovered {{ d.recovery }}{% else %}not recovered{% endif %}</span></h3>
+  {% if ev.context %}<p class="small">{{ ev.context.sentence() }}</p>{% endif %}
+  <h4>Most likely contributors</h4>
+  {% if ex.contributors %}<ul>{% for c in ex.contributors %}<li>{{ c.text }}</li>{% endfor %}</ul>{% else %}<p class="muted">Nothing we can support with the linked evidence.</p>{% endif %}
+  <h4>What we can't tell</h4>
+  <ul class="small">{% for t in ex.cannot_tell %}<li>{{ t }}</li>{% endfor %}</ul>
+  <details><summary>Linked evidence ({{ ev.events|length }}) · quality: {{ ex.evidence_quality }}</summary>
+    <ul class="small">{% for e in ev.events %}<li>{{ e.published_at.strftime('%Y-%m-%d') }} [{{ e.kind }}] {% if e.url %}{{ ext(e.url, e.title) }}{% else %}{{ e.title }}{% endif %} <span class="muted">rel {{ e.relevance|num('.2f') }}</span></li>{% endfor %}</ul>
+  </details>
+</section>
+{% endfor %}
+{% endfor %}
+{% endblock %}

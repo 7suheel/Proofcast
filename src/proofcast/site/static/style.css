@@ -1,0 +1,80 @@
+:root {
+  --bg: #fbfbf9; --fg: #1c1d21; --muted: #6a6d75; --card: #ffffff; --line: #e2e2dd;
+  --accent: #2f5bd3; --accent-soft: #dfe7fb; --warn-bg: #fff4d6; --warn-fg: #5c4400;
+  --bad-bg: #fde3e1; --bad-fg: #7a1610; --dd: rgba(214, 69, 65, 0.13);
+  --s0: #2f5bd3; --s1: #c2410c; --s2: #15803d; --s3: #7c3aed;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131417; --fg: #e8e8ea; --muted: #9a9ca3; --card: #1c1e22; --line: #2e3036;
+    --accent: #8aa8ff; --accent-soft: #263457; --warn-bg: #3a3110; --warn-fg: #f3deA0;
+    --bad-bg: #3d1716; --bad-fg: #ffb4ad; --dd: rgba(255, 110, 100, 0.16);
+    --s0: #8aa8ff; --s1: #fb923c; --s2: #4ade80; --s3: #c4b5fd;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--accent); }
+main, .notice, .alarm, footer { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+.top {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline;
+  max-width: 1000px; margin: 0 auto; padding: 14px 16px 6px;
+}
+.brand { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--fg); }
+nav { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+nav a { text-decoration: none; }
+.notice { background: var(--warn-bg); color: var(--warn-fg); padding: 8px 16px; border-radius: 6px; font-size: .9rem; }
+.alarm { background: var(--bad-bg); color: var(--bad-fg); padding: 10px 16px; border-radius: 6px; }
+h1 { font-size: 1.6rem; line-height: 1.25; margin: 22px 0 8px; }
+h2 { font-size: 1.25rem; margin: 28px 0 8px; }
+h3 { font-size: 1.05rem; margin: 0 0 6px; }
+h4 { font-size: .95rem; margin: 12px 0 4px; }
+.lead { font-size: 1.05rem; }
+.small { font-size: .85rem; }
+.muted { color: var(--muted); }
+code { font-size: .85em; background: var(--accent-soft); padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: .85rem; color: var(--muted); font-weight: 600; }
+tr.me td { font-weight: 600; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+.prob { display: grid; gap: 4px; min-width: 120px; }
+.prob .big { font-size: 1.35rem; font-weight: 700; }
+.bar { display: block; width: 100%; height: 8px; }
+.verdict { padding: 8px 12px; border-radius: 6px; background: var(--accent-soft); }
+.verdict.bad { background: var(--bad-bg); color: var(--bad-fg); }
+figure { margin: 8px 0; }
+.chart { width: 100%; height: auto; display: block; }
+.chart.calib { max-width: 360px; }
+.chart .line { stroke: var(--accent); stroke-width: 1.6; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .axis { fill: var(--muted); font-size: 18px; }
+.chart.calib .axis { font-size: 13px; }
+.chart .dd { fill: var(--dd); }
+.chart .frame { stroke: var(--line); }
+.chart .diag { stroke: var(--muted); stroke-dasharray: 4 4; }
+.chart .cal { stroke-width: 1.5; }
+.chart .s0 { stroke: var(--s0); fill: var(--s0); } .chart polyline.s0 { fill: none; }
+.chart .s1 { stroke: var(--s1); fill: var(--s1); } .chart polyline.s1 { fill: none; }
+.chart .s2 { stroke: var(--s2); fill: var(--s2); } .chart polyline.s2 { fill: none; }
+.chart .s3 { stroke: var(--s3); fill: var(--s3); } .chart polyline.s3 { fill: none; }
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.legend li::before { content: "●"; margin-right: 6px; }
+.legend .s0::before { color: var(--s0); } .legend .s1::before { color: var(--s1); }
+.legend .s2::before { color: var(--s2); } .legend .s3::before { color: var(--s3); }
+.timeline { padding-left: 18px; }
+.timeline li { margin-bottom: 8px; overflow-wrap: anywhere; }
+details summary { cursor: pointer; color: var(--accent); margin-top: 6px; }
+footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); margin-top: 40px; padding-top: 12px; padding-bottom: 30px; }
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  h1 { font-size: 1.35rem; }
+  th, td { padding: 6px; }
+  table.forecasts td:last-child, table.forecasts th:last-child { display: none; }
+}

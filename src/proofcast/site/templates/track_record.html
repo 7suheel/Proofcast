@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Track record{% endblock %}
+{% block content %}
+<h1>Track record</h1>
+<p class="lead">Every forecast was committed to the hash-chained ledger before its outcome was known, then resolved from price data only. Only live forecasts count; backtests never appear here. {{ record.n_forecasts }} forecasts, {{ record.n_resolved }} resolved, {{ record.n_void }} void.</p>
+
+{% if not record.setups %}<p class="muted">No forecasts recorded yet.</p>{% endif %}
+{% for s in record.setups %}
+<section class="card">
+  <h2><code>{{ s.setup }}</code>{% if s.is_baseline_setup %} <span class="small">(baseline setup, no AI)</span>{% endif %}</h2>
+  <p class="verdict {% if 'NOT better' in s.verdict or 'No resolved' in s.verdict %}bad{% endif %}"><strong>{{ s.verdict }}</strong></p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Forecaster (same questions)</th><th>Resolved</th><th>Brier ↓</th><th>Log score ↑</th><th>Hit rate</th></tr></thead>
+    <tbody>
+      <tr class="me"><td>This setup</td><td>{{ s.overall.n_resolved }}</td><td>{{ s.overall.brier|num }}</td><td>{{ s.overall.log_score|num }}</td><td>{{ s.overall.hit_rate|pct(1) }}</td></tr>
+      {% for name in baseline_names %}{% set b = s.baselines[name] %}
+      <tr><td>Baseline: {{ name|replace('_', ' ') }}</td><td>{{ b.n_resolved }}</td><td>{{ b.brier|num }}</td><td>{{ b.log_score|num }}</td><td>{{ b.hit_rate|pct(1) }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <details><summary>By asset and horizon</summary>
+  <div class="table-wrap"><table class="small">
+    <thead><tr><th>Group</th><th>Forecasts</th><th>Resolved</th><th>Brier</th><th>Hit rate</th></tr></thead>
+    <tbody>{% for g in s.by_horizon + s.by_asset %}<tr><td>{{ g.group }}</td><td>{{ g.n_forecasts }}</td><td>{{ g.n_resolved }}</td><td>{{ g.brier|num }}</td><td>{{ g.hit_rate|pct(1) }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  </details>
+</section>
+{% endfor %}
+
+<h2>Calibration</h2>
+<p class="small">For each 10% bucket of forecast probability, how often the asset actually closed higher. Points on the diagonal mean "when we said 60%, it happened 60% of the time". Bigger dots mean more forecasts.</p>
+<figure>{{ calibration_svg|safe }}</figure>
+<ul class="legend small">{% for s in record.setups %}<li class="s{{ loop.index0 % 4 }}">{{ s.setup }}</li>{% endfor %}{% if record.setups %}<li class="s{{ record.setups|length % 4 }}">always 50% on the same questions</li>{% endif %}</ul>
+
+<h2>Every forecast</h2>
+<p class="small">Newest first{% if total > past|length %}, showing {{ past|length }} of {{ total }}{% endif %}. The full ledger is <a href="ledger/forecasts.jsonl">downloadable</a>; run <code>proofcast ledger verify</code> on it to check that nothing was edited.</p>
+<div class="table-wrap">
+<table class="small">
+<thead><tr><th>Made (UTC)</th><th>Asset</th><th>Horizon</th><th>P(higher)</th><th>Base rate</th><th>Setup</th><th>Outcome</th><th>Recorded in</th></tr></thead>
+<tbody>
+{% for f, r, url in past %}
+<tr>
+  <td>{{ f.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ f.asset }}</td><td>{{ f.horizon_days }}d</td>
+  <td>{{ f.probability|pct(1) }}</td><td>{{ f.base_rate|pct(1) }}</td><td><code>{{ f.setup }}</code></td>
+  <td>{% if r is none %}<span class="muted">pending (target {{ f.resolution_rule.target_date }})</span>{% elif r.status == 'void' %}void{% elif r.outcome %}higher ✓{% else %}not higher ✗{% endif %}</td>
+  <td>{% if url %}<a href="{{ url }}" rel="noopener">commit</a>{% else %}<span class="muted">-</span>{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
