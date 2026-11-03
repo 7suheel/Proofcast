@@ -1,0 +1,78 @@
+[project]
+name = "proofcast"
+version = "0.1.0.dev0"
+description = "An honest, multi-agent market analyst that shows its own report card. Not investment advice."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [{ name = "Proofcast contributors" }]
+keywords = ["forecasting", "calibration", "brier-score", "markets", "llm", "track-record"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Typing :: Typed",
+]
+dependencies = [
+    "typer>=0.15",
+    "pydantic>=2.9",
+    "httpx>=0.28",
+    "jinja2>=3.1.5",
+    "polars>=1.20",
+    "feedparser>=6.0.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/7suheel/proofcast"
+Issues = "https://github.com/7suheel/proofcast/issues"
+
+[project.scripts]
+proofcast = "proofcast.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.9",
+    "mypy>=1.14",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/proofcast"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/proofcast", "tests", "README.md", "LICENSE", "CHANGELOG.md", "proofcast.toml"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "PTH", "DTZ"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "DTZ"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["feedparser", "feedparser.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

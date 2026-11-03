@@ -1,0 +1,230 @@
+# Proofcast configuration.
+# Not investment advice. Forecasts can be wrong. Past performance does not predict future results.
+
+[project]
+name = "Proofcast"
+site_url = "https://7suheel.github.io/proofcast/"
+repo_url = "https://github.com/7suheel/proofcast"
+data_dir = "data"
+ledger_path = "ledger/forecasts.jsonl"
+cache_dir = ".cache/http"
+
+[forecast]
+# Horizons in calendar days. Question: "closes higher than the reference close".
+horizons = [7, 30]
+# Probabilities are clamped to this range (rule 3: no false certainty).
+min_probability = 0.05
+max_probability = 0.95
+
+[history]
+years = 10
+# A drawdown counts as "major" when the peak-to-trough fall is deeper than this.
+stock_drawdown_threshold = 0.20
+crypto_drawdown_threshold = 0.35
+# Evidence window: from this many days before the drawdown start until the trough.
+evidence_days_before = 7
+# Benchmarks used for "was it the whole market?" context.
+stock_benchmark = "SP500"
+crypto_benchmark = "BTC"
+
+[schedules]
+# Cron expressions (UTC) used by the GitHub Actions workflows. Documented here for reference;
+# the workflow files are the source of truth for GitHub.
+news = "17 * * * *"
+daily_data = "30 22 * * 1-5"
+crypto_data = "20 0 * * *"
+forecasts = "0 23 * * *"
+resolve_score = "30 23 * * *"
+site = "0 0 * * *"
+
+[sources.stocks]
+# Price source chain for US stocks, tried in order. "yahoo" is unofficial and only used when
+# allow_unofficial = true (see docs/data-sources.md).
+providers = ["stooq", "yahoo"]
+allow_unofficial = true
+
+[sources.crypto]
+# CoinGecko for recent prices (public API keeps ~365 days), Coinbase Exchange public candles
+# for long history.
+providers = ["coinbase", "coingecko"]
+
+[sources.gdelt]
+enabled = true
+min_interval_seconds = 5.5
+
+[[sources.rss]]
+name = "CNBC Top News"
+url = "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+
+[[sources.rss]]
+name = "CNBC Finance"
+url = "https://www.cnbc.com/id/10000664/device/rss/rss.html"
+
+[[sources.rss]]
+name = "CoinDesk"
+url = "https://www.coindesk.com/arc/outboundfeeds/rss/"
+
+[[sources.rss]]
+name = "Cointelegraph"
+url = "https://cointelegraph.com/rss"
+
+[[sources.rss]]
+name = "SEC press releases"
+url = "https://www.sec.gov/news/pressreleases.rss"
+
+# ---------------------------------------------------------------------------
+# Universe
+# ---------------------------------------------------------------------------
+
+[[assets]]
+symbol = "BTC"
+kind = "crypto"
+name = "Bitcoin"
+aliases = ["bitcoin", "btc"]
+coingecko_id = "bitcoin"
+coinbase_product = "BTC-USD"
+yahoo_symbol = "BTC-USD"
+
+[[assets]]
+symbol = "ETH"
+kind = "crypto"
+name = "Ethereum"
+aliases = ["ethereum", "ether", "eth"]
+coingecko_id = "ethereum"
+coinbase_product = "ETH-USD"
+yahoo_symbol = "ETH-USD"
+
+[[assets]]
+symbol = "SOL"
+kind = "crypto"
+name = "Solana"
+aliases = ["solana", "sol"]
+coingecko_id = "solana"
+coinbase_product = "SOL-USD"
+yahoo_symbol = "SOL-USD"
+
+[[assets]]
+symbol = "AAPL"
+kind = "stock"
+name = "Apple Inc."
+aliases = ["apple", "iphone"]
+cik = "0000320193"
+stooq_symbol = "aapl.us"
+yahoo_symbol = "AAPL"
+
+[[assets]]
+symbol = "MSFT"
+kind = "stock"
+name = "Microsoft Corporation"
+aliases = ["microsoft"]
+cik = "0000789019"
+stooq_symbol = "msft.us"
+yahoo_symbol = "MSFT"
+
+[[assets]]
+symbol = "NVDA"
+kind = "stock"
+name = "NVIDIA Corporation"
+aliases = ["nvidia"]
+cik = "0001045810"
+stooq_symbol = "nvda.us"
+yahoo_symbol = "NVDA"
+
+[[assets]]
+symbol = "AMZN"
+kind = "stock"
+name = "Amazon.com, Inc."
+aliases = ["amazon", "aws"]
+cik = "0001018724"
+stooq_symbol = "amzn.us"
+yahoo_symbol = "AMZN"
+
+[[assets]]
+symbol = "GOOGL"
+kind = "stock"
+name = "Alphabet Inc."
+aliases = ["alphabet", "google", "youtube"]
+cik = "0001652044"
+stooq_symbol = "googl.us"
+yahoo_symbol = "GOOGL"
+
+[[assets]]
+symbol = "META"
+kind = "stock"
+name = "Meta Platforms, Inc."
+aliases = ["meta platforms", "facebook", "instagram", "whatsapp"]
+cik = "0001326801"
+stooq_symbol = "meta.us"
+yahoo_symbol = "META"
+
+[[assets]]
+symbol = "TSLA"
+kind = "stock"
+name = "Tesla, Inc."
+aliases = ["tesla"]
+cik = "0001318605"
+stooq_symbol = "tsla.us"
+yahoo_symbol = "TSLA"
+
+[[assets]]
+symbol = "JPM"
+kind = "stock"
+name = "JPMorgan Chase & Co."
+aliases = ["jpmorgan", "jp morgan", "chase"]
+cik = "0000019617"
+stooq_symbol = "jpm.us"
+yahoo_symbol = "JPM"
+
+[[assets]]
+symbol = "XOM"
+kind = "stock"
+name = "Exxon Mobil Corporation"
+aliases = ["exxon", "exxonmobil", "exxon mobil"]
+cik = "0000034088"
+stooq_symbol = "xom.us"
+yahoo_symbol = "XOM"
+
+[[assets]]
+symbol = "KO"
+kind = "stock"
+name = "The Coca-Cola Company"
+aliases = ["coca-cola", "coca cola", "coke"]
+cik = "0000021344"
+stooq_symbol = "ko.us"
+yahoo_symbol = "KO"
+
+# ---------------------------------------------------------------------------
+# Macro series (FRED). release_lag_days is a conservative estimate of how long after the end
+# of the observation period a value becomes public; used when the FRED API (with a key) cannot
+# tell us the real first-release date.
+# ---------------------------------------------------------------------------
+
+[[macro]]
+series_id = "FEDFUNDS"
+name = "Effective federal funds rate (monthly)"
+frequency = "monthly"
+release_lag_days = 3
+
+[[macro]]
+series_id = "CPIAUCSL"
+name = "Consumer price index, all urban consumers (monthly)"
+frequency = "monthly"
+release_lag_days = 16
+
+[[macro]]
+series_id = "DGS10"
+name = "10-year Treasury constant maturity yield (daily)"
+frequency = "daily"
+release_lag_days = 1
+
+[[macro]]
+series_id = "UNRATE"
+name = "Unemployment rate (monthly)"
+frequency = "monthly"
+release_lag_days = 10
+
+[[macro]]
+series_id = "SP500"
+name = "S&P 500 index (daily, used for market context)"
+frequency = "daily"
+release_lag_days = 1
