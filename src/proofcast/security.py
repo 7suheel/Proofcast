@@ -57,7 +57,10 @@ INJECTION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ),
     (
         "json-lookalike",
-        re.compile(r"\{\s*\"(?:probability|probabilities|forecast|confidence)\"", re.IGNORECASE),
+        re.compile(
+            r'"(?:probabilit(?:y|ies)|forecasts?|confidence|horizon_days|citations)"\s*:',
+            re.IGNORECASE,
+        ),
     ),
 )
 
@@ -114,3 +117,18 @@ def wrap_untrusted(
         text=f"<untrusted_source {' '.join(attrs)}>\n{body}\n</untrusted_source>",
         flags=flags,
     )
+
+
+# Advice wording that Proofcast never publishes (hard rule 3). "sell-off"/"selloff" (a news term)
+# and "safe haven" are allowed; "buy", "sell", "safe investment/bet/asset" and "guaranteed" are not.
+_ADVICE_WORDS = re.compile(
+    r"\b(?:buy(?:ing|s)?|sell(?!-?off)(?:ing|s)?|guarantee(?:d|s)?|"
+    r"safe\s+(?:investment|bet|asset|pick|play)s?)\b",
+    re.IGNORECASE,
+)
+
+
+def neutralize_advice(text: str) -> tuple[str, bool]:
+    """Replace investment-advice wording in model output; return (text, changed)."""
+    new = _ADVICE_WORDS.sub("[advice wording removed]", text)
+    return new, new != text

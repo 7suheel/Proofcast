@@ -40,9 +40,9 @@ _TAG = re.compile(r"<[^<>]{0,2000}>")
 _SPACE = re.compile(r"\s+")
 
 
-def clean_text(raw: str | None, limit: int) -> str:
+def clean_text(raw: object, limit: int) -> str:
     """Strip tags and entities, collapse whitespace, cap length. Linear time."""
-    if not raw:
+    if not isinstance(raw, str) or not raw:
         return ""
     text = raw[: limit * 20]
     text = _TAG.sub(" ", text)
@@ -54,8 +54,8 @@ def clean_text(raw: str | None, limit: int) -> str:
     return text
 
 
-def _safe_url(url: str | None) -> str | None:
-    if not url:
+def _safe_url(url: object) -> str | None:
+    if not isinstance(url, str) or not url:
         return None
     url = url.strip()
     parts = urlsplit(url)

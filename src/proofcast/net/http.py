@@ -259,26 +259,35 @@ class HttpClient:
         for attempt in range(self.retries + 1):
             self.rate_limiter.wait(host)
             try:
-                response = self._client.get(full, headers=headers)
+                with self._client.stream("GET", full, headers=headers) as response:
+                    status = response.status_code
+                    retry_after = response.headers.get("Retry-After")
+                    body = self._read_capped(response, safe) if status < 400 else b""
+                    encoding = response.encoding or "utf-8"
             except httpx.HTTPError as exc:
                 last_error = HttpError(f"{type(exc).__name__} for {safe}")
                 self._backoff(attempt, None, host)
                 continue
-            if response.status_code in RETRY_STATUS and attempt < self.retries:
-                last_error = HttpError(
-                    f"HTTP {response.status_code} for {safe}", status=response.status_code
-                )
-                self._backoff(attempt, response.headers.get("Retry-After"), host)
+            if status in RETRY_STATUS and attempt < self.retries:
+                last_error = HttpError(f"HTTP {status} for {safe}", status=status)
+                self._backoff(attempt, retry_after, host)
                 continue
-            if response.status_code >= 400:
-                raise HttpError(
-                    f"HTTP {response.status_code} for {safe}", status=response.status_code
-                )
-            if len(response.content) > self.max_bytes:
-                raise HttpError(f"response from {safe} larger than {self.max_bytes} bytes")
-            return response.text
+            if status >= 400:
+                raise HttpError(f"HTTP {status} for {safe}", status=status)
+            return body.decode(encoding, errors="replace")
         assert last_error is not None
         raise last_error
+
+    def _read_capped(self, response: httpx.Response, safe: str) -> bytes:
+        """Read the body, stopping as soon as it exceeds ``max_bytes`` (never buffer more)."""
+        chunks: list[bytes] = []
+        total = 0
+        for chunk in response.iter_bytes():
+            total += len(chunk)
+            if total > self.max_bytes:
+                raise HttpError(f"response from {safe} larger than {self.max_bytes} bytes")
+            chunks.append(chunk)
+        return b"".join(chunks)
 
     def _backoff(self, attempt: int, retry_after: str | None, host: str) -> None:
         if attempt >= self.retries:
