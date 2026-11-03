@@ -75,7 +75,10 @@ def rules_explanation(evidence: DrawdownEvidence) -> Explanation:
         contributors.append(
             Contributor(text=f"The whole market fell too. {ctx.sentence()}", citations=[])
         )
-    for e in evidence.events[:3]:
+    # Company news and filings first; macro releases only fill remaining slots.
+    ranked = [e for e in evidence.events if e.kind != "macro"]
+    ranked += [e for e in evidence.events if e.kind == "macro"]
+    for e in ranked[:3]:
         when = e.published_at.strftime("%Y-%m-%d")
         contributors.append(
             Contributor(text=f"Coincided with: {e.title} ({e.source}, {when})", citations=[e.id])

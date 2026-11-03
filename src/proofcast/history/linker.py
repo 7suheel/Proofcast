@@ -5,10 +5,12 @@ of the trough day.
 
 Relevance (documented in docs/methodology.md)::
 
-    relevance = kind_weight × closeness × (1 + 0.5 × negative_words) × (1 + reaction)
+    relevance = kind_weight * closeness * (1 + 0.5 * negative_words) * (1 + reaction)
 
 * ``kind_weight``: 8-K with item 2.02 (results) 1.0; other 8-K 0.8; 10-Q/10-K 0.7; news 0.6;
-  CPI/unemployment/fed funds release 0.4.
+  CPI/unemployment/fed funds release 0.4. Macro releases only count when they are a
+  notable move (CPI month-on-month change of at least 0.4%, unemployment or fed funds
+  change of at least 0.2 points); routine releases are not evidence.
 * ``closeness``: 1.0 inside [start, trough], ``exp(-days_before_start / 3)`` before the start.
 * ``negative_words``: 1 if the headline contains words such as "plunge", "miss", "probe".
 * ``reaction``: the asset's next-day fall after the event, in units of its typical daily move
@@ -20,6 +22,7 @@ stocks, BTC for other crypto; BTC itself is compared with the S&P 500).
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 from collections.abc import Sequence
@@ -39,7 +42,12 @@ NEGATIVE_WORDS = re.compile(
     r"layoff[s]?|halt\w*|delay\w*|weak\w*|fear[s]?|loss(?:es)?|decline[sd]?)\b",
     re.IGNORECASE,
 )
-MACRO_EVENT_SERIES = {"CPIAUCSL": 0.45, "UNRATE": 0.4, "FEDFUNDS": 0.4}
+# series id -> (weight, minimum notable change, change measured in percent?)
+MACRO_EVENT_SERIES: dict[str, tuple[float, float, bool]] = {
+    "CPIAUCSL": (0.45, 0.4, True),
+    "UNRATE": (0.4, 0.2, False),
+    "FEDFUNDS": (0.4, 0.2, False),
+}
 MAX_EVENTS = 25
 
 ContextLabel = Literal["market-wide", "partly market-wide", "mostly asset-specific", "unknown"]
@@ -107,7 +115,7 @@ def _closeness(t: datetime, start: datetime, trough_end: datetime) -> float:
 
 
 def _typical_move(bars: Sequence[PriceBar]) -> float:
-    moves = [abs(b.close / a.close - 1) for a, b in zip(bars, bars[1:], strict=False)]
+    moves = [abs(b.close / a.close - 1) for a, b in itertools.pairwise(bars)]
     return median(moves) if moves else 0.02
 
 
@@ -193,12 +201,19 @@ def link_evidence(
                 days_from_start=days_from_start(f.filed_at),
             )
         )
-    for series_id, weight in MACRO_EVENT_SERIES.items():
+    for series_id, (weight, min_change, as_pct) in MACRO_EVENT_SERIES.items():
         obs = store.read_macro(series_id)
         for i, o in enumerate(obs):
-            if not in_window(o.published_at):
+            if not in_window(o.published_at) or i == 0:
                 continue
-            prev = obs[i - 1] if i > 0 else None
+            prev = obs[i - 1]
+            change = (
+                (o.value / prev.value - 1) * 100
+                if as_pct and prev.value
+                else (o.value - prev.value)
+            )
+            if abs(change) < min_change:
+                continue
             events.append(_macro_event(drawdown, o, prev, weight, start, window_end, bars, typical))
     events.sort(key=lambda e: (-e.relevance, e.published_at))
     return DrawdownEvidence(

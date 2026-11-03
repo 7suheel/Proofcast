@@ -9,6 +9,7 @@ import typer
 
 from proofcast import DISCLAIMER, __version__
 from proofcast.config import Config, load_config
+from proofcast.llm.base import Provider, TokenBudget
 from proofcast.models import Asset
 from proofcast.storage import DataStore
 
@@ -167,6 +168,60 @@ def fetch_all(
 ) -> None:
     """Fetch prices, news, filings and macro data."""
     _run_fetch(config, ["prices", "news", "filings", "macro"], asset, since)
+
+
+# ---------------------------------------------------------------------------
+# history
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def history(
+    asset: str = typer.Argument(..., help="Asset symbol, e.g. AAPL."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """List every major drawdown of the last 10 years (no AI needed)."""
+    from proofcast.history.report import history_text
+
+    cfg = _load(config)
+    symbol = _assets(cfg, [asset])[0].symbol
+    typer.echo(history_text(cfg, DataStore(cfg.data_dir), symbol))
+
+
+@app.command("why")
+def why_cmd(
+    asset: str = typer.Argument(..., help="Asset symbol."),
+    day: str = typer.Argument(..., help="A date inside the drawdown, YYYY-MM-DD."),
+    no_ai: bool = typer.Option(False, "--no-ai", help="Rules-based summary, no LLM."),
+    model: str | None = typer.Option(None, "--model", help="Override PROOFCAST_MODEL."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Explain a drawdown with the news, filings and macro releases around it."""
+    from proofcast.history.report import why, why_text
+
+    cfg = _load(config)
+    symbol = _assets(cfg, [asset])[0].symbol
+    when = _since(day)
+    assert when is not None
+    provider, budget = _provider(no_ai, model)
+    result = why(cfg, DataStore(cfg.data_dir), symbol, when, provider, budget)
+    if result is None:
+        typer.echo(f"No major drawdown of {symbol} found around {when}. See `proofcast history`.")
+        raise typer.Exit(1)
+    typer.echo(why_text(*result))
+
+
+def _provider(no_ai: bool, model: str | None) -> tuple[Provider | None, TokenBudget | None]:
+    """Resolve the BYOK provider from flags and environment; None means AI is off."""
+    from proofcast.llm.factory import ProviderConfigError, provider_from_env
+
+    if no_ai:
+        return None, None
+    try:
+        return provider_from_env(model=model)
+    except ProviderConfigError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(2) from exc
 
 
 def main() -> None:
