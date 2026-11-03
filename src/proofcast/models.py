@@ -156,6 +156,22 @@ class Filing(_Model):
         return self.filed_at
 
 
+class FinancialFact(_Model):
+    """One reported XBRL value from SEC company facts (revenue, net income, EPS, ...)."""
+
+    asset: str
+    concept: str
+    unit: str
+    value: float
+    period_end: date
+    fiscal_period: str | None
+    form: str
+    filed: date
+    accession: str
+    published_at: UtcDatetime
+    """End of the filing day (US Eastern, conservative): facts are public by then."""
+
+
 class MacroObservation(_Model):
     """One observation of a macro series (FRED)."""
 

@@ -66,3 +66,47 @@ User-Agent; the SEC one is configured by the maintainer.
   re-checks the snapshot with `assert_no_lookahead`. Tests cover exact-boundary cases, session
   hours, crypto midnight, macro publication lag and naive timestamps.
 - Tests block all socket connections (`conftest.py`) so no test can touch the network.
+
+## 2026-11-03 — Phase 2: data adapters
+
+Built: shared `HttpClient` (User-Agent, timeouts, retries with backoff that honours
+`Retry-After` and never retries faster than the host interval, per-host rate limiter, on-disk
+cache with TTL, response size cap, HTTPS only, secrets redacted from errors and cache
+metadata); adapters for Coinbase, CoinGecko, Stooq, Yahoo (unofficial), SEC EDGAR submissions
+and company facts, FRED (API and CSV), RSS/Atom and GDELT; asset mapping; `proofcast fetch
+prices|news|filings|macro|all`.
+
+### Live verification (2026-11-03, from the maintainer's PC, into a scratch directory)
+
+| Adapter | Status |
+|---|---|
+| Coinbase candles (BTC, SOL since 2024-05) | **verified live**; fixture recorded |
+| CoinGecko market_chart | **verified live** (format); fixture recorded |
+| Yahoo chart (AAPL, NVDA) | **verified live**; split-adjusted across the NVDA 10:1 split of 2024-06-10; fixture recorded |
+| Stooq CSV | **unverified against live API**: the live site returns a JavaScript bot check to scripts. Built from the documented CSV format, tested on a hand-written fixture; the bot page is detected and the chain falls back to Yahoo. |
+| FRED fredgraph.csv (no key) | **verified live** for all five series; fixtures recorded |
+| FRED API with `FRED_API_KEY` (`output_type=4`) | **unverified against live API** (no key available); hand-written fixture following the documented JSON |
+| SEC submissions + company facts | **unverified against live API** for the adapter: SEC rejects User-Agents without an email, and the maintainer's SEC User-Agent is not configured yet. Endpoint reachability was verified in Phase 0. Hand-written fixtures follow the documented JSON. |
+| RSS: CNBC (2 feeds), CoinDesk, Cointelegraph, SEC press releases | **verified live**; tests use hand-written feeds so no third-party articles are committed |
+| GDELT DOC API | **verified live** (BTC query returned articles); also hit HTTP 429 when queries were close together, which led to the host-interval backoff. Hand-written fixture. |
+
+### Decisions and problems
+- Stock prices: config chain `["stooq", "yahoo"]` with `allow_unofficial = true`, because Stooq
+  currently blocks scripts. Yahoo is unofficial; set `allow_unofficial = false` to forbid it.
+- CoinGecko's public API only serves ~365 days, so long crypto history comes from Coinbase's
+  public candles (official API, no key). CoinGecko is the fallback, labelled
+  `coingecko:close-only` since it gives one price per day.
+- Bars fetched before their session ended are dropped, so a partial day never looks final.
+- SEC `acceptanceDateTime` is read as US Eastern Standard Time (UTC-5): never earlier than the
+  true publication time, at most one hour late in summer.
+- FRED without a key: publication time = end of period + `release_lag_days` at 23:59 UTC,
+  flagged as estimated. With a key: real first-release date (`realtime_start`).
+- RSS items without a date get the fetch time; future dates are clamped to the fetch time;
+  `javascript:` and other non-http links are dropped; HTML is stripped and text capped.
+- GDELT: the query adds market words, and an article only counts if its headline names the
+  asset (a bare `"Apple"` query returned celebrity and food news in the live test).
+- Asset mapping: short names (Meta, Coke, SOL) match only capitalised or upper-case, short
+  tickers (KO) only as `$KO`, `(KO)` or `NYSE: KO`; "chase" removed from JPM aliases. Text is
+  NFKC-normalised and zero-width characters removed before matching.
+- Windows note: paths in `proofcast.toml` must be relative or Windows-style; an MSYS-style
+  `/c/...` path is read by Python as `C:\c\...`.

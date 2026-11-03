@@ -24,7 +24,7 @@ from typing import Any
 
 import polars as pl
 
-from proofcast.models import Filing, MacroObservation, NewsItem, PriceBar
+from proofcast.models import Filing, FinancialFact, MacroObservation, NewsItem, PriceBar
 
 NEWS_TEXT_RETENTION_DAYS = 90
 
@@ -261,6 +261,33 @@ class DataStore:
     def write_filings(self, filings: Iterable[Filing]) -> int:
         return self._merge_jsonl("filings", filings, _keep_first)
 
+    # -- fundamentals (SEC company facts) ------------------------------------------------
+
+    def facts_path(self, symbol: str) -> Path:
+        return self.root / "fundamentals" / f"{_safe_name(symbol)}.jsonl"
+
+    def read_facts(self, symbol: str) -> list[FinancialFact]:
+        path = self.facts_path(symbol)
+        if not path.exists():
+            return []
+        return [FinancialFact.model_validate(r) for r in _read_jsonl(path)]
+
+    def write_facts(self, symbol: str, facts: Iterable[FinancialFact]) -> int:
+        """Add facts; a fact already stored (same concept, unit, period, form) is kept."""
+        current = {_fact_key(f): f for f in self.read_facts(symbol)}
+        added = 0
+        for f in facts:
+            if f.asset != symbol:
+                raise ValueError(f"fact for {f.asset} written to {symbol}")
+            if _fact_key(f) not in current:
+                current[_fact_key(f)] = f
+                added += 1
+        if added:
+            ordered = sorted(current.values(), key=lambda f: (f.filed, f.concept, f.period_end))
+            lines = [f.model_dump_json() for f in ordered]
+            atomic_write_text(self.facts_path(symbol), "\n".join(lines) + "\n")
+        return added
+
     # -- helpers -----------------------------------------------------------------------
 
     def _iter_jsonl(self, kind: str) -> Iterator[dict[str, object]]:
@@ -344,6 +371,10 @@ def _num(value: float) -> str:
 
 def _bar_values(bar: PriceBar) -> tuple[float, float, float, float, float, str]:
     return (bar.open, bar.high, bar.low, bar.close, bar.volume, bar.source)
+
+
+def _fact_key(f: FinancialFact) -> tuple[str, str, date, str]:
+    return (f.concept, f.unit, f.period_end, f.form)
 
 
 def _macro_values(o: MacroObservation) -> tuple[float, datetime, bool, str]:
