@@ -1,11 +1,15 @@
 """FRED macro data.
 
-* With ``FRED_API_KEY``: the official API with ``output_type=4`` ("initial release only"), whose
-  ``realtime_start`` is the date each value was first published. We stamp it at 23:59 UTC of
-  that day, after every US release time.
-* Without a key: the public ``fredgraph.csv`` download. It has no release dates, so
-  ``published_at`` is a conservative estimate: end of the observation period plus the series'
-  configured ``release_lag_days``, at 23:59 UTC, flagged ``published_at_estimated``.
+* With ``FRED_API_KEY``, monthly series: the official API with ``output_type=4`` ("initial
+  release only"), whose ``realtime_start`` is the date each value was first published. We stamp
+  it at 23:59 UTC of that day, after every US release time.
+* With ``FRED_API_KEY``, daily series: plain observations. Daily series (Treasury yields, the
+  S&P 500) have far more vintages than FRED allows in one real-time request (it answers HTTP
+  400), so their release time is estimated like the CSV path below.
+* If the API fails, or without a key: the public ``fredgraph.csv`` download. It has no release
+  dates, so ``published_at`` is a conservative estimate: end of the observation period plus
+  the series' configured ``release_lag_days``, at 23:59 UTC, flagged
+  ``published_at_estimated``.
 """
 
 from __future__ import annotations
@@ -13,13 +17,14 @@ from __future__ import annotations
 import calendar
 import csv
 import io
+from collections.abc import Callable
 from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
 
 from proofcast.adapters.base import Clock, env_value, utcnow
 from proofcast.config import MacroSeries
 from proofcast.models import MacroObservation
-from proofcast.net.http import HttpClient, SourceBlockedError
+from proofcast.net.http import HttpClient, HttpError, SourceBlockedError
 
 FRED_API_URL = "https://api.stlouisfed.org/fred/series/observations"
 FRED_CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv"
@@ -86,24 +91,26 @@ def parse_fred_csv(series: MacroSeries, text: str, fetched_at: datetime) -> list
 
 
 def parse_fred_api(
-    series: MacroSeries, payload: Any, fetched_at: datetime
+    series: MacroSeries, payload: Any, fetched_at: datetime, *, vintage: bool = True
 ) -> list[MacroObservation]:
+    """Parse API observations. With ``vintage`` the rows carry first-release dates; without it
+    ``realtime_start`` is just the request date, so publication times are estimated."""
     if not isinstance(payload, dict) or not isinstance(payload.get("observations"), list):
         raise ValueError(f"fred: unexpected API payload for {series.series_id}")
     out = []
     for o in payload["observations"]:
         try:
             day = date.fromisoformat(o["date"])
-            released = date.fromisoformat(o["realtime_start"])
+            released = date.fromisoformat(o["realtime_start"]) if vintage else day
         except (KeyError, ValueError, TypeError):
             continue
         value = _value(o.get("value"))
         if value is None:
             continue
-        # A first-release date before the period ended is impossible; fall back to the estimate.
         published = datetime.combine(released, END_OF_DAY, UTC)
         estimated = False
-        if released < period_end(day, series.frequency):
+        # Without vintages, or with a "release" before the period ended (impossible), estimate.
+        if not vintage or released < period_end(day, series.frequency):
             published = estimated_publication(day, series)
             estimated = True
         out.append(
@@ -127,21 +134,29 @@ def fetch_macro(
     since: date | None = None,
     environ: dict[str, str] | None = None,
     clock: Clock = utcnow,
+    on_fallback: Callable[[str], None] | None = None,
 ) -> list[MacroObservation]:
     now = clock()
     key = env_value(environ, API_KEY_ENV)
     if key:
+        vintage = series.frequency != "daily"
         params: dict[str, str | int | float] = {
             "series_id": series.series_id,
             "api_key": key,
             "file_type": "json",
-            "output_type": 4,
-            "realtime_start": "1776-07-04",
-            "realtime_end": "9999-12-31",
         }
+        if vintage:
+            params.update(
+                {"output_type": 4, "realtime_start": "1776-07-04", "realtime_end": "9999-12-31"}
+            )
         if since:
             params["observation_start"] = since.isoformat()
-        return parse_fred_api(series, client.get_json(FRED_API_URL, params=params), now)
+        try:
+            payload = client.get_json(FRED_API_URL, params=params)
+            return parse_fred_api(series, payload, now, vintage=vintage)
+        except (HttpError, ValueError) as exc:
+            if on_fallback is not None:
+                on_fallback(f"fred {series.series_id}: API failed ({exc}); used the public CSV")
     csv_params: dict[str, str | int | float] = {"id": series.series_id}
     if since:
         csv_params["cosd"] = since.isoformat()

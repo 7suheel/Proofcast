@@ -186,7 +186,12 @@ class Fetcher:
         for series in self.cfg.macro:
             try:
                 obs = fred.fetch_macro(
-                    self.client, series, since=start, environ=self.environ, clock=self.clock
+                    self.client,
+                    series,
+                    since=start,
+                    environ=self.environ,
+                    clock=self.clock,
+                    on_fallback=report.warnings.append,
                 )
             except (HttpError, ValueError) as exc:
                 report.errors.append(f"fred {series.series_id}: {exc}")

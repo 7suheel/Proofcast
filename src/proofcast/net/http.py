@@ -262,7 +262,7 @@ class HttpClient:
                 with self._client.stream("GET", full, headers=headers) as response:
                     status = response.status_code
                     retry_after = response.headers.get("Retry-After")
-                    body = self._read_capped(response, safe) if status < 400 else b""
+                    body = self._read_capped(response, safe)
                     encoding = response.encoding or "utf-8"
             except httpx.HTTPError as exc:
                 last_error = HttpError(f"{type(exc).__name__} for {safe}")
@@ -272,9 +272,12 @@ class HttpClient:
                 last_error = HttpError(f"HTTP {status} for {safe}", status=status)
                 self._backoff(attempt, retry_after, host)
                 continue
+            text = body.decode(encoding, errors="replace")
             if status >= 400:
-                raise HttpError(f"HTTP {status} for {safe}", status=status)
-            return body.decode(encoding, errors="replace")
+                detail = error_snippet(text, full)
+                suffix = f": {detail}" if detail else ""
+                raise HttpError(f"HTTP {status} for {safe}{suffix}", status=status)
+            return text
         assert last_error is not None
         raise last_error
 
@@ -303,6 +306,22 @@ class HttpClient:
 def _is_localhost(url: str) -> bool:
     host = (urlsplit(url).hostname or "").lower()
     return host in {"localhost", "127.0.0.1", "::1"} or host.endswith(".localhost")
+
+
+def error_snippet(text: str, full_url: str, limit: int = 200) -> str:
+    """A short, single-line excerpt of an error body, with secret query values removed.
+
+    Some APIs explain a 4xx in the body (FRED: "Bad Request. ..."); showing it makes failures
+    debuggable from CI logs. Values of secret query parameters are replaced in case the server
+    echoes the request back.
+    """
+    snippet = " ".join(text.split())[: limit * 4]
+    if snippet.lstrip().startswith("<"):
+        return ""
+    for k, v in parse_qsl(urlsplit(full_url).query, keep_blank_values=True):
+        if k.lower() in SECRET_PARAM_NAMES and len(v) >= 4:
+            snippet = snippet.replace(v, "REDACTED")
+    return snippet[:limit]
 
 
 def redact_headers(headers: Mapping[str, str]) -> dict[str, str]:

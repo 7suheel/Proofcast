@@ -31,7 +31,7 @@ jobs:
       - name: Install
         run: uv sync --locked --no-dev
 
-      - name: Fetch prices, filings and macro
+      - name: Fetch prices, filings, macro and news
         env:
           PROOFCAST_SEC_USER_AGENT: ${{ secrets.PROOFCAST_SEC_USER_AGENT }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
@@ -41,11 +41,13 @@ jobs:
           uv run --no-dev proofcast fetch prices || status=1
           uv run --no-dev proofcast fetch filings || status=1
           uv run --no-dev proofcast fetch macro || status=1
+          # Safety net: GitHub runs hourly schedules on a best-effort basis and may skip them.
+          uv run --no-dev proofcast fetch news || status=1
           if [ "$status" -ne 0 ]; then echo "::warning::some fetches failed; see the log"; fi
       - name: Commit data
         env:
           GH_TOKEN: ${{ github.token }}
-        run: 'scripts/commit-data.sh "data: daily prices, filings and macro"'
+        run: 'scripts/commit-data.sh "data: daily prices, filings, macro and news"'
 
       - name: Verify ledger
         run: uv run --no-dev proofcast ledger verify
