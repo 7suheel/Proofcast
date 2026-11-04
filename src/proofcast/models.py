@@ -155,6 +155,13 @@ class Filing(_Model):
         """Alias of :attr:`filed_at`, so filings fit the point-in-time interface."""
         return self.filed_at
 
+    @property
+    def display_title(self) -> str | None:
+        """The SEC description, unless it only repeats the form type (e.g. "10-K")."""
+        if self.title and self.title.strip().upper() != self.form_type.strip().upper():
+            return self.title.strip()
+        return None
+
 
 class FinancialFact(_Model):
     """One reported XBRL value from SEC company facts (revenue, net income, EPS, ...)."""

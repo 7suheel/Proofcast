@@ -49,6 +49,6 @@
 
 <h2>Filings</h2>
 {% if filings %}
-<ul>{% for f in filings %}<li>{{ f.filed_at.strftime('%Y-%m-%d') }} {{ ext(f.url, f.form_type ~ (' items ' ~ f.items|join(', ') if f.items else '')) }}{% if f.title %} <span class="small">{{ f.title }}</span>{% endif %}</li>{% endfor %}</ul>
+<ul>{% for f in filings %}<li>{{ f.filed_at.strftime('%Y-%m-%d') }} {{ ext(f.url, f.form_type ~ (' items ' ~ f.items|join(', ') if f.items else '')) }}{% if f.display_title %} <span class="small">{{ f.display_title }}</span>{% endif %}</li>{% endfor %}</ul>
 {% else %}<p class="muted">{% if asset.kind == 'crypto' %}Crypto assets have no SEC filings.{% else %}No stored filings yet.{% endif %}</p>{% endif %}
 {% endblock %}

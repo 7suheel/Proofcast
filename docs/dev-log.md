@@ -280,3 +280,24 @@ prices|news|filings|macro|all`.
   outside the repo: `--version`, `doctor`, `analyze SOL --no-ai` on real data,
   `ledger verify` and `site build` all worked.
 - actionlint clean; zizmor 0 medium/high.
+
+## 2026-11-04 — First scheduled runs
+
+- GitHub started both schedules late: the first News run was at 02:25 UTC (cron :17 hourly)
+  and the first Daily at 02:32 UTC (cron 22:30). By 09:11 UTC no further News run had fired.
+  Scheduled runs are best effort on GitHub, so the daily job now also fetches news as a safety
+  net.
+- Daily run 41761379372 succeeded in 1.5 min (daily job 48 s, Pages 42 s):
+  - prices: ~10 years for all 13 assets (stocks via Yahoo; Stooq still serves its bot check);
+  - SEC: filings and company facts for all 10 stocks, so the SEC User-Agent secret works live;
+  - FRED: CPIAUCSL, FEDFUNDS and UNRATE fetched with real first-release dates;
+  - 26 baseline forecasts recorded; the track record committed; the site deployed.
+- **Failure:** FRED `DGS10` and `SP500` returned HTTP 400 through the API. Daily series have far
+  more vintages than FRED allows in a real-time (`output_type=4`) request. Without SP500, every
+  stock drawdown showed "market context unknown". Fix: daily series are requested without
+  vintages (release time estimated), and any FRED API failure now falls back to the public CSV
+  with a warning. HTTP errors now include a short, redacted excerpt of the error body, so the
+  next failure explains itself in the log.
+- Site: filings showed "10-K 10-K" (SEC's description repeats the form); fixed with
+  `Filing.display_title`. Long price charts that grew more than 10x now use a log scale, labelled
+  on the chart (NVDA's 10-year chart was flat until 2023).

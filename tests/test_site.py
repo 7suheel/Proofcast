@@ -183,3 +183,20 @@ def test_workflows_are_pinned_and_least_privilege() -> None:
     daily = (REPO_ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
     assert "group: proofcast-data" in daily
     assert "vars.PROOFCAST_MODEL != ''" in daily
+
+
+def test_log_scale_for_long_histories() -> None:
+    grown = price_chart(series([1.0 + i for i in range(100)], start=START))
+    flat = price_chart(series([100.0 + i % 5 for i in range(100)], start=START))
+    assert "log scale" in grown
+    assert "log scale" not in flat
+
+
+def test_filing_display_title_skips_repeated_form() -> None:
+    from helpers import filing
+
+    f = filing("x-1", datetime(2024, 1, 1, tzinfo=UTC), form_type="10-K")
+    assert f.model_copy(update={"title": "10-K"}).display_title is None
+    assert f.model_copy(update={"title": " 10-k "}).display_title is None
+    assert f.model_copy(update={"title": "Annual report"}).display_title == "Annual report"
+    assert f.display_title is None

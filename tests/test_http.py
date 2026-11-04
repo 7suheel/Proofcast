@@ -183,3 +183,20 @@ def test_backoff_respects_host_interval() -> None:
     )
     assert client.get_text("https://api.gdeltproject.org/x") == "ok"
     assert sleeps == [11.0]
+
+
+def test_error_body_snippet_is_shown_and_redacted() -> None:
+    body = '{"error_message": "Bad Request. Variable api_key=SECRETKEY is invalid."}'
+    router = Router().text("api.stlouisfed.org", "/", body, status=400)
+    with router.client() as c, pytest.raises(HttpError) as info:
+        c.get_text("https://api.stlouisfed.org/x", params={"api_key": "SECRETKEY"})
+    message = str(info.value)
+    assert "Bad Request" in message
+    assert "SECRETKEY" not in message
+
+
+def test_html_error_bodies_are_not_quoted() -> None:
+    router = Router().text("api.example.com", "/", "<html><body>Oops</body></html>", status=404)
+    with router.client() as c, pytest.raises(HttpError) as info:
+        c.get_text("https://api.example.com/x")
+    assert str(info.value) == "HTTP 404 for https://api.example.com/x"

@@ -161,7 +161,7 @@ def build_context(cfg: Config, store: DataStore, symbol: str, as_of: datetime) -
         sorted(recent_filings, key=lambda f: f.filed_at, reverse=True)[:MAX_FILINGS], 1
     ):
         items_txt = f" items {', '.join(f.items)}" if f.items else ""
-        text = f"{f.form_type}{items_txt}" + (f": {f.title}" if f.title else "")
+        text = f"{f.form_type}{items_txt}" + (f": {f.display_title}" if f.display_title else "")
         items.append(ContextItem(f"F{i}", "filing", text, f.filed_at, "SEC EDGAR", f.url))
 
     facts = [f for f in store.read_facts(asset.symbol) if f.published_at < as_of]

@@ -138,3 +138,46 @@ def test_fred_html_detected() -> None:
 def test_period_end() -> None:
     assert fred.period_end(date(2024, 2, 1), "monthly") == date(2024, 2, 29)
     assert fred.period_end(date(2024, 2, 5), "daily") == date(2024, 2, 5)
+
+
+# -- fixes after the first scheduled run (2026-11-04) -------------------------------------
+
+DAILY_API = (
+    '{"observations": ['
+    '{"realtime_start": "2026-11-04", "realtime_end": "2026-11-04", "date": "2026-10-30", '
+    '"value": "4.11"},'
+    '{"realtime_start": "2026-11-04", "realtime_end": "2026-11-04", "date": "2026-11-02", '
+    '"value": "."}'
+    "]}"
+)
+
+
+def test_fred_daily_series_skip_vintages() -> None:
+    router = Router().text("api.stlouisfed.org", "/fred/series/observations", DAILY_API)
+    with router.client() as c:
+        obs = fred.fetch_macro(c, DGS10, environ={"FRED_API_KEY": "k123"}, clock=lambda: NOW)
+    params = router.requests[0].url.params
+    assert "output_type" not in params and "realtime_start" not in params
+    (o,) = obs
+    assert o.source == "fred-api"
+    # realtime_start is only the request date here, so the release time is estimated.
+    assert o.published_at_estimated
+    assert o.published_at == datetime(2026, 10, 31, 23, 59, tzinfo=UTC)
+
+
+def test_fred_api_failure_falls_back_to_csv() -> None:
+    body = '{"error_code": 400, "error_message": "Bad Request. Too many vintage dates."}'
+    router = (
+        Router()
+        .text("api.stlouisfed.org", "/", body, status=400)
+        .file("fred.stlouisfed.org", "/", "recorded/fredgraph_cpiaucsl.csv")
+    )
+    notes: list[str] = []
+    with router.client() as c:
+        obs = fred.fetch_macro(
+            c, CPI, environ={"FRED_API_KEY": "k123"}, clock=lambda: NOW, on_fallback=notes.append
+        )
+    assert obs and all(o.source == "fred-csv" for o in obs)
+    assert len(notes) == 1
+    assert "Too many vintage dates" in notes[0]
+    assert "k123" not in notes[0]

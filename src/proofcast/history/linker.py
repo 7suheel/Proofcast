@@ -193,7 +193,7 @@ def link_evidence(
                 id=f"filing:{f.id}",
                 kind="filing",
                 asset=drawdown.asset,
-                title=f"{f.form_type}{items}" + (f": {f.title}" if f.title else ""),
+                title=f"{f.form_type}{items}" + (f": {f.display_title}" if f.display_title else ""),
                 url=f.url,
                 source="SEC EDGAR",
                 published_at=f.filed_at,

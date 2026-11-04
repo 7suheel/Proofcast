@@ -6,6 +6,7 @@ phones and in dark mode (colours come from CSS variables). All text is escaped.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from datetime import date
 from html import escape
@@ -13,6 +14,7 @@ from html import escape
 from proofcast.models import CalibrationBucket, Drawdown, PriceBar
 
 MAX_POINTS = 700
+LOG_SCALE_RATIO = 10
 
 
 def _downsample(
@@ -57,13 +59,17 @@ def price_chart(
     span = max(1, (d1 - d0).days)
     lo = min(v for _, v in points)
     hi = max(v for _, v in points)
-    rng = (hi - lo) or 1.0
+    # Long histories that grew more than 10x read better on a log scale.
+    log_scale = lo > 0 and hi / lo > LOG_SCALE_RATIO
+    t_lo, t_hi = (math.log(lo), math.log(hi)) if log_scale else (lo, hi)
+    rng = (t_hi - t_lo) or 1.0
 
     def x(d: date) -> float:
         return pad_l + (d - d0).days / span * w
 
     def y(v: float) -> float:
-        return pad_t + (1 - (v - lo) / rng) * h
+        t = math.log(v) if log_scale else v
+        return pad_t + (1 - (t - t_lo) / rng) * h
 
     parts = [
         f'<svg class="chart" viewBox="0 0 {width} {height}" role="img" '
@@ -79,7 +85,8 @@ def price_chart(
             "</title></rect>"
         )
     for frac in (0.0, 0.5, 1.0):
-        v = lo + frac * rng
+        t = t_lo + frac * rng
+        v = math.exp(t) if log_scale else t
         yy = y(v)
         parts.append(
             f'<line class="grid" x1="{pad_l}" x2="{width - pad_r}" y1="{yy:.1f}" y2="{yy:.1f}"/>'
@@ -95,6 +102,8 @@ def price_chart(
         )
     path = " ".join(f"{x(d):.1f},{y(v):.1f}" for d, v in points)
     parts.append(f'<polyline class="line" fill="none" points="{path}"/>')
+    if log_scale:
+        parts.append(f'<text class="axis" x="{pad_l + 6}" y="{pad_t + 16}">log scale</text>')
     parts.append("</svg>")
     return "".join(parts)
 
