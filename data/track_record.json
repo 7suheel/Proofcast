@@ -1,0 +1,1596 @@
+{
+ "generated_at": "2026-11-04T02:32:58.709761Z",
+ "n_forecasts": 26,
+ "n_resolved": 0,
+ "n_void": 0,
+ "setups": [
+  {
+   "setup": "baseline:momentum",
+   "is_baseline_setup": true,
+   "overall": {
+    "group": "baseline:momentum",
+    "setup": "baseline:momentum",
+    "asset": null,
+    "horizon_days": null,
+    "n_forecasts": 26,
+    "n_resolved": 0,
+    "brier": null,
+    "log_score": null,
+    "hit_rate": null,
+    "calibration": [
+     {
+      "lower": 0.0,
+      "upper": 0.1,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.1,
+      "upper": 0.2,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.2,
+      "upper": 0.3,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.3,
+      "upper": 0.4,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.4,
+      "upper": 0.5,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.5,
+      "upper": 0.6,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.6,
+      "upper": 0.7,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.7,
+      "upper": 0.8,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.8,
+      "upper": 0.9,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     },
+     {
+      "lower": 0.9,
+      "upper": 1.0,
+      "n": 0,
+      "mean_probability": null,
+      "observed_frequency": null
+     }
+    ]
+   },
+   "baselines": {
+    "always_50": {
+     "group": "baseline:momentum vs always_50",
+     "setup": "baseline:always_50",
+     "asset": null,
+     "horizon_days": null,
+     "n_forecasts": 26,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    "base_rate": {
+     "group": "baseline:momentum vs base_rate",
+     "setup": "baseline:base_rate",
+     "asset": null,
+     "horizon_days": null,
+     "n_forecasts": 26,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    "momentum": {
+     "group": "baseline:momentum vs momentum",
+     "setup": "baseline:momentum",
+     "asset": null,
+     "horizon_days": null,
+     "n_forecasts": 26,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    }
+   },
+   "by_asset": [
+    {
+     "group": "baseline:momentum / AAPL",
+     "setup": "baseline:momentum",
+     "asset": "AAPL",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / AMZN",
+     "setup": "baseline:momentum",
+     "asset": "AMZN",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / BTC",
+     "setup": "baseline:momentum",
+     "asset": "BTC",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / ETH",
+     "setup": "baseline:momentum",
+     "asset": "ETH",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / GOOGL",
+     "setup": "baseline:momentum",
+     "asset": "GOOGL",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / JPM",
+     "setup": "baseline:momentum",
+     "asset": "JPM",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / KO",
+     "setup": "baseline:momentum",
+     "asset": "KO",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / META",
+     "setup": "baseline:momentum",
+     "asset": "META",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / MSFT",
+     "setup": "baseline:momentum",
+     "asset": "MSFT",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / NVDA",
+     "setup": "baseline:momentum",
+     "asset": "NVDA",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / SOL",
+     "setup": "baseline:momentum",
+     "asset": "SOL",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / TSLA",
+     "setup": "baseline:momentum",
+     "asset": "TSLA",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / XOM",
+     "setup": "baseline:momentum",
+     "asset": "XOM",
+     "horizon_days": null,
+     "n_forecasts": 2,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    }
+   ],
+   "by_horizon": [
+    {
+     "group": "baseline:momentum / 7d",
+     "setup": "baseline:momentum",
+     "asset": null,
+     "horizon_days": 7,
+     "n_forecasts": 13,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    },
+    {
+     "group": "baseline:momentum / 30d",
+     "setup": "baseline:momentum",
+     "asset": null,
+     "horizon_days": 30,
+     "n_forecasts": 13,
+     "n_resolved": 0,
+     "brier": null,
+     "log_score": null,
+     "hit_rate": null,
+     "calibration": [
+      {
+       "lower": 0.0,
+       "upper": 0.1,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.1,
+       "upper": 0.2,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.2,
+       "upper": 0.3,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.3,
+       "upper": 0.4,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.4,
+       "upper": 0.5,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.5,
+       "upper": 0.6,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.6,
+       "upper": 0.7,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.7,
+       "upper": 0.8,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.8,
+       "upper": 0.9,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      },
+      {
+       "lower": 0.9,
+       "upper": 1.0,
+       "n": 0,
+       "mean_probability": null,
+       "observed_frequency": null
+      }
+     ]
+    }
+   ],
+   "verdict": "No resolved forecasts yet: nothing can be said about accuracy."
+  }
+ ]
+}
