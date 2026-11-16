@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-11-15T02:02:23.590658Z",
- "n_forecasts": 250,
- "n_resolved": 55,
+ "generated_at": "2026-11-16T02:19:02.256051Z",
+ "n_forecasts": 256,
+ "n_resolved": 58,
  "n_void": 0,
  "setups": [
   {
@@ -12,11 +12,11 @@
     "setup": "baseline:momentum",
     "asset": null,
     "horizon_days": null,
-    "n_forecasts": 250,
-    "n_resolved": 55,
-    "brier": 0.23567,
-    "log_score": -0.66425,
-    "hit_rate": 0.6364,
+    "n_forecasts": 256,
+    "n_resolved": 58,
+    "brier": 0.23349,
+    "log_score": -0.65984,
+    "hit_rate": 0.6552,
     "calibration": [
      {
       "lower": 0.0,
@@ -42,16 +42,16 @@
      {
       "lower": 0.3,
       "upper": 0.4,
-      "n": 1,
-      "mean_probability": 0.3996,
+      "n": 2,
+      "mean_probability": 0.39905,
       "observed_frequency": 0.0
      },
      {
       "lower": 0.4,
       "upper": 0.5,
-      "n": 22,
-      "mean_probability": 0.46014090909090916,
-      "observed_frequency": 0.36363636363636365
+      "n": 24,
+      "mean_probability": 0.4600458333333333,
+      "observed_frequency": 0.3333333333333333
      },
      {
       "lower": 0.5,
@@ -96,8 +96,8 @@
      "setup": "baseline:always_50",
      "asset": null,
      "horizon_days": null,
-     "n_forecasts": 250,
-     "n_resolved": 55,
+     "n_forecasts": 256,
+     "n_resolved": 58,
      "brier": 0.25,
      "log_score": -0.69315,
      "hit_rate": 0.5,
@@ -140,9 +140,9 @@
       {
        "lower": 0.5,
        "upper": 0.6,
-       "n": 55,
+       "n": 58,
        "mean_probability": 0.5,
-       "observed_frequency": 0.509090909090909
+       "observed_frequency": 0.4827586206896552
       },
       {
        "lower": 0.6,
@@ -179,11 +179,11 @@
      "setup": "baseline:base_rate",
      "asset": null,
      "horizon_days": null,
-     "n_forecasts": 250,
-     "n_resolved": 55,
-     "brier": 0.2423,
-     "log_score": -0.67775,
-     "hit_rate": 0.6,
+     "n_forecasts": 256,
+     "n_resolved": 58,
+     "brier": 0.24343,
+     "log_score": -0.68,
+     "hit_rate": 0.5862,
      "calibration": [
       {
        "lower": 0.0,
@@ -216,16 +216,16 @@
       {
        "lower": 0.4,
        "upper": 0.5,
-       "n": 5,
-       "mean_probability": 0.48141999999999996,
+       "n": 6,
+       "mean_probability": 0.4813,
        "observed_frequency": 0.0
       },
       {
        "lower": 0.5,
        "upper": 0.6,
-       "n": 50,
-       "mean_probability": 0.554678,
-       "observed_frequency": 0.56
+       "n": 52,
+       "mean_probability": 0.5537134615384616,
+       "observed_frequency": 0.5384615384615384
       },
       {
        "lower": 0.6,
@@ -262,11 +262,11 @@
      "setup": "baseline:momentum",
      "asset": null,
      "horizon_days": null,
-     "n_forecasts": 250,
-     "n_resolved": 55,
-     "brier": 0.23567,
-     "log_score": -0.66425,
-     "hit_rate": 0.6364,
+     "n_forecasts": 256,
+     "n_resolved": 58,
+     "brier": 0.23349,
+     "log_score": -0.65984,
+     "hit_rate": 0.6552,
      "calibration": [
       {
        "lower": 0.0,
@@ -292,16 +292,16 @@
       {
        "lower": 0.3,
        "upper": 0.4,
-       "n": 1,
-       "mean_probability": 0.3996,
+       "n": 2,
+       "mean_probability": 0.39905,
        "observed_frequency": 0.0
       },
       {
        "lower": 0.4,
        "upper": 0.5,
-       "n": 22,
-       "mean_probability": 0.46014090909090916,
-       "observed_frequency": 0.36363636363636365
+       "n": 24,
+       "mean_probability": 0.4600458333333333,
+       "observed_frequency": 0.3333333333333333
       },
       {
        "lower": 0.5,
@@ -513,11 +513,11 @@
      "setup": "baseline:momentum",
      "asset": "BTC",
      "horizon_days": null,
-     "n_forecasts": 24,
-     "n_resolved": 5,
-     "brier": 0.248,
-     "log_score": -0.68913,
-     "hit_rate": 0.6,
+     "n_forecasts": 26,
+     "n_resolved": 6,
+     "brier": 0.24318,
+     "log_score": -0.67949,
+     "hit_rate": 0.6667,
      "calibration": [
       {
        "lower": 0.0,
@@ -550,8 +550,8 @@
       {
        "lower": 0.4,
        "upper": 0.5,
-       "n": 3,
-       "mean_probability": 0.4886333333333333,
+       "n": 4,
+       "mean_probability": 0.4835,
        "observed_frequency": 0.0
       },
       {
@@ -596,11 +596,11 @@
      "setup": "baseline:momentum",
      "asset": "ETH",
      "horizon_days": null,
-     "n_forecasts": 24,
-     "n_resolved": 5,
-     "brier": 0.26717,
-     "log_score": -0.72761,
-     "hit_rate": 0.2,
+     "n_forecasts": 26,
+     "n_resolved": 6,
+     "brier": 0.25638,
+     "log_score": -0.70595,
+     "hit_rate": 0.3333,
      "calibration": [
       {
        "lower": 0.0,
@@ -633,8 +633,8 @@
       {
        "lower": 0.4,
        "upper": 0.5,
-       "n": 1,
-       "mean_probability": 0.4792,
+       "n": 2,
+       "mean_probability": 0.46455,
        "observed_frequency": 0.0
       },
       {
@@ -1177,10 +1177,10 @@
      "setup": "baseline:momentum",
      "asset": "SOL",
      "horizon_days": null,
-     "n_forecasts": 24,
-     "n_resolved": 5,
-     "brier": 0.16724,
-     "log_score": -0.52584,
+     "n_forecasts": 26,
+     "n_resolved": 6,
+     "brier": 0.16583,
+     "log_score": -0.52292,
      "hit_rate": 1.0,
      "calibration": [
       {
@@ -1207,8 +1207,8 @@
       {
        "lower": 0.3,
        "upper": 0.4,
-       "n": 1,
-       "mean_probability": 0.3996,
+       "n": 2,
+       "mean_probability": 0.39905,
        "observed_frequency": 0.0
       },
       {
@@ -1428,11 +1428,11 @@
      "setup": "baseline:momentum",
      "asset": null,
      "horizon_days": 7,
-     "n_forecasts": 125,
-     "n_resolved": 55,
-     "brier": 0.23567,
-     "log_score": -0.66425,
-     "hit_rate": 0.6364,
+     "n_forecasts": 128,
+     "n_resolved": 58,
+     "brier": 0.23349,
+     "log_score": -0.65984,
+     "hit_rate": 0.6552,
      "calibration": [
       {
        "lower": 0.0,
@@ -1458,16 +1458,16 @@
       {
        "lower": 0.3,
        "upper": 0.4,
-       "n": 1,
-       "mean_probability": 0.3996,
+       "n": 2,
+       "mean_probability": 0.39905,
        "observed_frequency": 0.0
       },
       {
        "lower": 0.4,
        "upper": 0.5,
-       "n": 22,
-       "mean_probability": 0.46014090909090916,
-       "observed_frequency": 0.36363636363636365
+       "n": 24,
+       "mean_probability": 0.4600458333333333,
+       "observed_frequency": 0.3333333333333333
       },
       {
        "lower": 0.5,
@@ -1511,7 +1511,7 @@
      "setup": "baseline:momentum",
      "asset": null,
      "horizon_days": 30,
-     "n_forecasts": 125,
+     "n_forecasts": 128,
      "n_resolved": 0,
      "brier": null,
      "log_score": null,
